@@ -1,0 +1,3 @@
+id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
+92bdbee9-dd4f-5c5c-9f5b-0946367e94bb	13893	aliquot	6f0cf450-76f1-489d-9890-5093816c0680	General	Observation	2013-01-15T00:00:00	Approved	This is the corrected tcgaBarcode for RNA aliquot UUID: 6f0cf450-76f1-489d-9890-5093816c0680.  It replaces the incorrect tcgaBarcode: TCGA-C4-A0F7-01A-11R-A10U-07.
+406086ae-3ea9-5902-88f3-4fa0b665765b	16301	analyte	7e941190-5a08-476f-9643-381c45602859	General	Observation	2013-05-20T00:00:00	Approved	Users should discard data fpr this analyte obtained before 5/7/13, and use the latest data available on the Data Portal instead. See http://tcgadcc.com/browse/TCGA-955.
