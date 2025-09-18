@@ -5,6 +5,7 @@
 .back/
 .backup/
 .FPKM*
+*count*.txt
 *Results.txt
 *time.txt
 *.txt
