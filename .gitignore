@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.back/
+.backup/
+.FPKM*
+.Results.txt
