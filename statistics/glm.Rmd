@@ -1,0 +1,50 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+Nonlinear Models
+==================
+here we explore the use of nonlinear models using some tools in R
+
+```{r}
+require(ISLR)
+attach(Wage)
+```
+
+```{r}
+fit = lm(wage ~ poly(age, 4), data=Auto)
+summary(fit)
+```
+
+```{r}
+agelims=range(age)
+agelims
+
+age.grid=seq(agelims[1], agelims[2])
+age.grid
+
+preds = predict(fit ,newdata=list(age=age.grid), se = TRUE)
+se.band=cbind(preds$fit+2*preds$se, preds$fit -2*preds$se )
+plot(age, wage, col = "darkgrey")
+lines(age.grid, preds$fit, lwd=2, col="blue")
+#matlines(age.grid, se.band, col = "darkblue", lty = 2)
+matlines(age.grid, se.band, col = "darkred", lty = 1)
+
+```
+
+```{r}
+fita = lm(wage ~ education ,                data=Wage)# +I(age^5)  
+fitb = lm(wage ~ education + age  ,         data=Wage)# +I(age^5)  
+fitc = lm(wage ~ education + poly(age,2)  , data=Wage)# +I(age^5)  
+fitd = lm(wage ~ education + poly(age,3)  , data=Wage)# +I(age^5)  
+
+anova(fita, fitb, fitc, fitd)
+
+```
+
+```{r}
+fita = lm(wage ~ age +I(age^2) +I(age^3) +I(age^4), data=Wage)# +I(age^5)  
+summary(fita)
+?I
+```
