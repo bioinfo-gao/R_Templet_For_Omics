@@ -5,4 +5,7 @@
 .back/
 .backup/
 .FPKM*
-.Results.txt
+*Results.txt
+*time.txt
+*.txt
+*Supplement*
