@@ -11,3 +11,8 @@
 *.txt
 *Supplement*
 .Rdata
+sparse_git2.md
+sparse_git.md
+.Rproj
+R_Templet_For_Omics.Rproj
+.gitignore
