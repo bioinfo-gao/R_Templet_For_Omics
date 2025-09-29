@@ -8,6 +8,7 @@ require("datasets")
 swiss
 str(swiss)
 data(swiss)
+
 fertility <- swiss$Fertility
 
 # PLOTS
