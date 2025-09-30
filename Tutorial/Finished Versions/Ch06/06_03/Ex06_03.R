@@ -26,7 +26,7 @@ lines(lowess (cars$speed, cars$dist),
       col = "blue", 
       lwd = 2)  
 
-# "car" package ("Companion to Applied Regression")
+# "car" package ("Companion to Applied Regression") <<<<=================
 # Has many variations on scatterplots
 install.packages("car")
 help(package = "car")

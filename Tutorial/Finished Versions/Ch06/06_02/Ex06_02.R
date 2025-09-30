@@ -4,6 +4,8 @@
 
 # Load data
 # Use dataset "painters" from the package "MASS
+# Modified version
+require("RColorBrewer")
 require(MASS)
 ?painters
 # For an interesting follow-up on this data, see
@@ -16,12 +18,8 @@ painters
 
 # Draw boxplots of outcome (Expression) by group (School)
 # Basic version
-boxplot(painters$Expression ~ painters$School)
-
-# Modified version
-require("RColorBrewer")
 boxplot(painters$Expression ~ painters$School,
-        #col = brewer.pal(8, "Pastel2"),
+        col = brewer.pal(8, "Pastel2"),
         names  = c("Renais.",
                    "Mannerist",
                    "Seicento",
