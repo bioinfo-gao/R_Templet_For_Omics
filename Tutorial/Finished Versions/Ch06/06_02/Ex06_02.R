@@ -11,6 +11,7 @@ require(MASS)
 # and Three Centuries of Art Prices" by Kathryn Graddy at
 browseURL("http://people.brandeis.edu/~kgraddy/published%20papers/DePiles_complete.pdf")
 data(painters)
+str(painters)
 painters
 
 # Draw boxplots of outcome (Expression) by group (School)
@@ -20,7 +21,7 @@ boxplot(painters$Expression ~ painters$School)
 # Modified version
 require("RColorBrewer")
 boxplot(painters$Expression ~ painters$School,
-        col = brewer.pal(8, "Pastel2"),
+        #col = brewer.pal(8, "Pastel2"),
         names  = c("Renais.",
                    "Mannerist",
                    "Seicento",
