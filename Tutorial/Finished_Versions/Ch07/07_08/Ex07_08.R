@@ -36,7 +36,7 @@ for(i in 1:length(taus)){  # For each quantile value...
 abline(lm(foodexp ~ income),  # Standard LS regression
        col = "darkred",
        lwd = 2)
-abline(rq(foodexp ~ income),  # Median regression
+abline(rq(foodexp ~ income),  # rq: quantiale regression # the default is tau=.5
        col = "blue",
        lwd = 2)
 legend(3000, 1000,  # Plot legend
@@ -44,7 +44,7 @@ legend(3000, 1000,  # Plot legend
        col = c("darkred", "blue"),
        lty = 1,
        lwd = 2)
-
+?rq
 # Clean up
 detach(engel)
 detach("package:robust", unload=TRUE)

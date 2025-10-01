@@ -16,7 +16,7 @@ summary(xdf)
 # Stack data to get one column with outcome
 # and second columns with group
 xs <- stack(xdf)
-
+xs
 # Conduct one-way ANOVA
 anova1 <- aov(values ~ ind, data = xs)
 anova1
