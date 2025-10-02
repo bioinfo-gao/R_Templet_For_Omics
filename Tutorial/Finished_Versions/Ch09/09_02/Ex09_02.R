@@ -6,7 +6,14 @@
 # Built-in dataset "warpbreaks"
 ?warpbreaks
 data(warpbreaks)
-boxplot(breaks ~ wool*tension, data = warpbreaks)
+boxplot(breaks ~ wool*tension, data = warpbreaks) ## * 
+
+# Model with interaction
+aov0 <- aov(breaks ~ 
+            wool*tension, 
+            # or: wool*tension, 
+            data = warpbreaks)
+summary(aov0)
 
 # Model with interaction
 aov1 <- aov(breaks ~ 
@@ -14,6 +21,7 @@ aov1 <- aov(breaks ~
             # or: wool*tension, 
             data = warpbreaks)
 summary(aov1)
+
 
 # Additional information on model
 model.tables(aov1)
