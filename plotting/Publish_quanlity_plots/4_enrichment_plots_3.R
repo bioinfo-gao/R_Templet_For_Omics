@@ -13,6 +13,7 @@ library(dplyr)
 
 #======================= 模拟 300 个差异表达基因（DEGs）
 set.seed(123)
+
 deg_data <- data.frame(
   gene = paste0("GENE", 1:300),
   log2FC = c(rnorm(200, mean = 1.5, sd = 0.5), rnorm(100, mean = -1.5, sd = 0.5)),
@@ -20,10 +21,23 @@ deg_data <- data.frame(
 )
 
 
+data(geneList, package = "DOSE")
+
+deg_data$gene <- names(geneList)[1:300]
+
+
 deg_data
+head(deg_data)
+
 
 # 筛选显著 DEGs（|log2FC| > 1 & p < 0.05）
+?pull # dplyer 
+
 sig_genes <- deg_data %>% filter(abs(log2FC) > 1 & pvalue < 0.05) %>% pull(gene)
+
+head(sig_genes)
+dim(sig_genes)
+str(sig_genes)
 
 cat("显著差异基因数量:", length(sig_genes), "\n")
 
@@ -33,10 +47,11 @@ cat("显著差异基因数量:", length(sig_genes), "\n")
 # 将基因 Symbol 转换为 Entrez ID（GOplot 要求 Entrez ID）
 # 
 
-str(sig_genes)
 
 ##  ==================  需要真实数据，以下无法完成
-gene_df <- bitr(sig_genes, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = org.Hs.eg.db)
+?bitr #  bitr {clusterProfiler}
+gene_df <- bitr(sig_genes, fromType = "ENTREZID" , toType =  "SYMBOL", OrgDb = org.Hs.eg.db) # ENTRZ ID is number 
+gene_df
 
 #======================= GO 富集分析（生物过程 BP）
 ego <- enrichGO(
@@ -53,30 +68,58 @@ ego <- enrichGO(
 
 
 
+dim(ego@result)
+head(ego@result, 2)
 
 # 提取 top 10 显著 term
 top_terms <- ego@result %>%
   arrange(p.adjust) %>%
   head(10) %>%
-  select(ID, Description, GeneRatio, p.adjust)
+  select(ID, Description, GeneRatio, p.adjust, FoldEnrichment)
 
 print(top_terms)
 
 # 准备 GOplot 所需数据格式
 # Step 1: 获取每个 term 的基因列表
+# Step 1: 获取每个 term 的基因列表
 term2gene <- as.data.frame(ego)
-term2gene$geneID <- strsplit(term2gene$geneID, "/")
+term2gene <- as.data.frame(ego)
+
+head(term2gene)
 
 # Step 2: 展开为长格式
 library(tidyr)
+
+
 term_gene_long <- term2gene %>%
-  select(ID, Description, geneID) %>%
+  select(ID, Description, geneID, FoldEnrichment) %>%
   unnest(geneID) %>%
   head(50)  # 限制基因数量避免图形过密
 
+
+top_terms$genes = top_terms$ID
+top_terms$logFC = top_terms$FoldEnrichment
+
+
+top_terms$genes = top_terms$ID
+top_terms$logFC = top_terms$FoldEnrichment
+
+
+top_terms
+
+term_gene_long 
+
+dim(top_terms)
+dim(term_gene_long )
+
+head(top_terms)
+head(term_gene_long )
+
 # Step 3: 创建 circ 参数
+# 
+?circle_dat
 circ <- circle_dat(
-  df = top_terms,           # 富集结果
+  terms  = top_terms,           # 富集结果
   gene = term_gene_long     # term-基因对应关系
 )
 
