@@ -7,14 +7,8 @@ par(mar=c(3,3,3,3))
 num <- 0 ; 
 num1 <- 0
 
-# plot(0,0 ,  xlim=c(0,21) ,ylim=c(0.5,6.5), col="white" , yaxt="n" ,  ylab="" ,  xlab="")
-plot(0,0 , 
-     xlim=c(0,21) ,
-     ylim=c(0.5,6.5), 
-     col="white" , 
-     yaxt="n" , 
-     ylab="" , 
-     xlab="")
+plot(0,0 ,  xlim=c(0,21) ,ylim=c(0.5,6.5), col="white" , yaxt="n" ,  ylab="" ,  xlab="")
+
 
 #fill the graph
 for (i in seq(1,20)){                                    #  i chanqing  
@@ -35,10 +29,10 @@ for (i in seq(1,20)){                                    #  i chanqing
   #type and lwd 
   if(i %in% c(seq(1,20,5))){                            # type and name 
     num1=num1+1
-    points(c(i,i+1,i+2,i+3), c(5,5,5,5) , col="black"  , type=c("p","l","b","o")[num1] , lwd=2)
+    points(c(i,i+1,i+2,i+3), c(5,5,5,5) , col="magenta"  , type=c("p","l","b","o")[num1] , lwd=2) # cyan 
     text(i+1.1 , 5.2 , c("p","l","b","o")[num1] )
     
-    points(c(i,i+1,i+2,i+3), c(6,6,6,6) , col="black"  , type="l",  lwd=num1) # line widh different width 
+    points(c(i,i+1,i+2,i+3), c(6,6,6,6) , col="purple"  , type="l",  lwd=num1) # line widh different width 
     text(i+1.1 , 6.2 , num1 )
     
   }
