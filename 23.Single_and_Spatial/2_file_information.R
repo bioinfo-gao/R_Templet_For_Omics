@@ -1,6 +1,6 @@
 # 文件：scRNA_seq_reads.R
 # 运行环境：RStudio 或 VS Code，Conda r_env（4.3.3）
-setwd("~/Code/Rcode/R_Templet_For_Omics/23.Single_and_Spatial")
+setwd("~/Code/R_code/R_Templet_For_Omics/23.Single_and_Spatial")
 # 加载库
 library(Seurat)
 library(ggplot2)

@@ -1,0 +1,6 @@
+"CHROM","POS","ID","REF","ALT","SAMPLE","GT","DP","GQ","Phenotype"
+"22",42128945,"rs3892097","G","A","Sample1","0/1",30,99,"Intermediate Metabolizer (IM)"
+"22",42128945,"rs3892097","G","A","Sample2","1/1",40,95,"Poor Metabolizer (PM)"
+"22",42128945,"rs3892097","G","G","Sample3","0/0",35,98,"Normal Metabolizer (NM)"
+"22",42128945,"rs3892097","G","A","Sample4","0/1",38,97,"Intermediate Metabolizer (IM)"
+"22",42128945,"rs3892097","G","G","Sample5","0/0",32,96,"Normal Metabolizer (NM)"
