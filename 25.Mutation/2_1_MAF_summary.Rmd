@@ -49,7 +49,9 @@ MAF files contain many fields ranging from chromosome names to cosmic annotation
 if (!require("BiocManager"))
     install.packages("BiocManager")
 #BiocManager::install("maftools")
-BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+#BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+#BiocManager::install("RaggedExperiment")
+BiocManager::install("MultiAssayExperiment")
 
 
 ```
@@ -913,33 +915,12 @@ MAF can be converted to an object of class [MultiAssayExperiment](https://www.bi
 Note: Converting MAF to MAE object requires installation of [MultiAssayExperiment](https://www.bioconductor.org/packages/release/bioc/html/MultiAssayExperiment.html) and [RaggedExperiment](https://www.bioconductor.org/packages/release/bioc/html/RaggedExperiment.html) packages.
 
 ```{r maf2mae}
-laml_mae = maf2mae(m = laml)
-laml_mae
+#laml_mae = maf2mae(m = laml)
+#laml_mae
 ```
 
 
 # Useful links and tools
-
-| File Fomats                                                                                                        | Data portals                                                                                    | Annotation tools                                                                                                                       |
-|--------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)                            | [TCGA](http://cancergenome.nih.gov)                                                             | [vcf2maf](https://github.com/mskcc/vcf2maf) - for converting your VCF files to MAF                                                     |
-| [Variant Call Format](https://en.wikipedia.org/wiki/Variant_Call_Format)                                           | [ICGC](https://docs.icgc.org/)                                                                  | [annovar2maf](https://github.com/PoisonAlien/annovar2maf) - for converting annovar output files to MAF                                 |
-| ICGC [Simple Somatic Mutation Format](https://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) | [Broad Firehose](https://gdac.broadinstitute.org/)                                              | [bcftools csq](https://samtools.github.io/bcftools/howtos/csq-calling.html) - Rapid annotations of VCF files with variant consequences |
-|                                                                                                                    | [cBioPortal](https://www.cbioportal.org/)                                                       | [Annovar](https://annovar.openbioinformatics.org/en/latest/)                                                              |
-|                                                                                                                    | [PeCan](https://pecan.stjude.cloud/)                                                            | [Funcotator](https://gatk.broadinstitute.org/hc/en-us/articles/360037224432-Funcotator)                                                |
-|                                                                                                                    | [CIViC](https://civicdb.org/home) - Clinical interpretation of variants in cancer               |                                                                                                                                        |
-|                                                                                                                    | [DGIdb](http://www.dgidb.org/) - Information on drug-gene interactions and the druggable genome |                                                                                                                                        |
-
-Below are some more useful software packages for somatic variant analysis.
-
--   [TRONCO](https://github.com/BIMIB-DISCo/TRONCO) - Repository of the TRanslational ONCOlogy library (R)
--   [dndscv](https://github.com/im3sanger/dndscv) - dN/dS methods to quantify selection in cancer and somatic evolution (R)
--   [cloneevol](https://github.com/hdng/clonevol) - Inferring and visualizing clonal evolution in multi-sample cancer sequencing (R)
--   [sigminer](https://github.com/ShixiangWang/sigminer) - Primarily for signature analysis and visualization in R. Supports `maftools` output (R)
--   [GenVisR](https://github.com/griffithlab/GenVisR) - Primarily for visualization (R)
--   [comut](https://github.com/vanallenlab/comut) - Primarily for visualization (Python)
--   [TCGAmutations](https://github.com/PoisonAlien/TCGAmutations) - pre-compiled curated somatic mutations from TCGA cohorts (from Broad Firehose and TCGA MC3 Project) that can be loaded into `maftools` (R)
--   [somaticfreq](<https://github.com/PoisonAlien/somaticfreq>) - rapid genotyping of known somatic hotspot variants from the tumor BAM files. Generates a browsable/sharable HTML report. (C)
 
 # References {#references}
 
