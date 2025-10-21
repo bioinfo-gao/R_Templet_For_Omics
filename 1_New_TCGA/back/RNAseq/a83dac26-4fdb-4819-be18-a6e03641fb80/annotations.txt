@@ -1,2 +1,0 @@
-id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
-346e69c3-583a-5422-8879-161d7f3c2d02	15269	aliquot	50f23d00-f6fd-4b3d-aed2-0705f7ae6a17	General	Observation	2013-01-31T00:00:00	Approved	This is the correct replacement barcode for RNA aliquot UUID: 50F23D00-F6FD-4B3D-AED2-0705F7AE6A17, which is a replacement aliquot for UUID: 60770e58-3b35-4222-97e9-d92e973f0203 that was found to have inconclusive identity (RNA only).   Note that this replacement aliquot is derived from a different portion than the DNA.
