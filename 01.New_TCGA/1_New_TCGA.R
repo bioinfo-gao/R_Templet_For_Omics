@@ -6,7 +6,8 @@
 #@symbol,为T提取基因名字，为F，不提取
 #@type,为T提取RNA类型，为F，不提取
 
-setwd("")#设置工作目录
+setwd("C:\\Users\\zhen-\\Code\\R_code\\R_For_DS_Omics\\01.New_TCGA")#设置工作目录
+
 merge_TCGA <- function(metadata, path, data.type, mRNA_expr_type="STAR", symbol=T, RNA_type=T){
 
   #通过合并path,还有sample sheet前两列得到每一个文件的完整路径

@@ -1,43 +1,55 @@
-
-
 #install.packages("survival")
+# if (!require("BiocManager", quietly = TRUE))
+#         install.packages("BiocManager")
+# BiocManager::install("limma")
+# install.packages("tidyverse") # very slow, need 30 sec to finish 
+# conda install conda-forge::r-tidyverse
+
 library(tidyverse)
 library(survival)
 library(limma)
-#setwd()  #¹¤×÷Ä¿Â¼£¨ÐèÐÞ¸Ä£©
-expFile="diffGeneExp.txt" 
+#setwd() 
+
+expFile="diffGeneExp.txt"
+
 cliFile="time.txt"  
+
 rt2=read.table(expFile, header=T, check.names=F, row.names=1)
-exp_data_T = rt2%>% dplyr::select(str_which(colnames(.), "-01A")) # Æ¥ÅäÁÐÃû»òÓÃÏÂÊ¾Ð´·¨
+
+exp_data_T rt2%>% dplyr::select(str_which(colnames(.), "-01A")) #
+
 nT = ncol(exp_data_T) 
-#¶ÁÈ¡Éú´æÊý¾ÝÎÄ¼þ
+
 cli=read.table(cliFile, header=T, sep="\t", check.names=F, row.names=1)
 cli$futime=cli$futime/365
+
 group1=sapply(strsplit(colnames(rt2),"\\-"), "[", 4)
 group1=sapply(strsplit(group1,""), "[", 1)
 group1=gsub("2", "1", group1)
-conNum=length(group1[group1==1])       #Õý³£×éÑùÆ·ÊýÄ¿
-treatNum=length(group1[group1==0])     #Ö×Áö×éÑùÆ·ÊýÄ¿
+conNum=length(group1[group1==1])       
+treatNum=length(group1[group1==0])     
 Type=c(rep(1,conNum), rep(2,treatNum))
-#É¾µôÕý³£ÑùÆ·
+
+
+#É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·
 tumorData=exp_data_T
 tumorData=as.matrix(tumorData)
 tumorData=t(tumorData)
 rownames(tumorData)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", rownames(tumorData))
 data=avereps(tumorData)
-#Êý¾ÝºÏ²¢²¢Êä³ö½á¹û
+#ï¿½ï¿½ï¿½ÝºÏ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 sameSample=intersect(row.names(data), row.names(cli))
 data=data[sameSample,,drop=F]
 cli=cli[sameSample,,drop=F]
 rt2=cbind(cli, data)
-#Êä³öºÏ²¢ºóµÄÊý¾Ý
+#ï¿½ï¿½ï¿½ï¿½Ï²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 outTab=cbind(ID=row.names(rt2), rt2)
 outTab=outTab[,-ncol(outTab)]
 
 
-#²îÒì·ÖÎö
-pFilter=0.05                                                                 #ÏÔÖøÐÔ¹ýÂËÌõ¼þ
-rt=outTab    #¶ÁÈ¡ÊäÈëÎÄ¼þ                                                   #Èç¹ûÒÔÔÂÎªµ¥Î»£¬³ýÒÔ30£»ÒÔÄêÎªµ¥Î»£¬³ýÒÔ365
+#ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+pFilter=0.05                                                                 #ï¿½ï¿½ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+rt=outTab    #ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½                                                   #ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½30ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½365
 outTab=data.frame()
 sigGenes=c("futime","fustat")
 for(gene in colnames(rt[,4:ncol(rt)])){
@@ -62,11 +74,11 @@ for(gene in colnames(rt[,4:ncol(rt)])){
 	   }
 	   fiveYearsDiff=abs(survivalTab1["surv"]-survivalTab2["surv"])
 
-     #km·½·¨
+     #kmï¿½ï¿½ï¿½ï¿½
 	   diff=survdiff(Surv(futime, fustat) ~a,data = rt)
 	   pValue=1-pchisq(diff$chisq,df=1)
 	   fit=survfit(Surv(futime, fustat) ~ a, data = rt)
-	   #cox·½·¨
+	   #coxï¿½ï¿½ï¿½ï¿½
 	   cox=coxph(Surv(futime, fustat) ~ rt[,gene], data = rt)
 	   coxSummary = summary(cox)
 	   coxP=coxSummary$coefficients[,"Pr(>|z|)"]
@@ -82,7 +94,7 @@ for(gene in colnames(rt[,4:ncol(rt)])){
 			                      coxPvalue=coxP) )
 		 }
 }
-write.table(outTab,file="survival.xls",sep="\t",row.names=F,quote=F)    #Êä³ö»ùÒòºÍpÖµ±í¸ñÎÄ¼þ
+write.table(outTab,file="survival.xls",sep="\t",row.names=F,quote=F)    #ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pÖµï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 surSigExp=rt[,sigGenes]
 surSigExp=cbind(id=row.names(surSigExp),surSigExp)
 write.table(surSigExp,file="surSigExp.txt",sep="\t",row.names=F,quote=F)

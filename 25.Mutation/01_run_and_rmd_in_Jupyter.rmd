@@ -1,0 +1,76 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+https://chat.qwen.ai/c/cfabef59-277a-4c4c-8348-4c9eb68e1baa 
+# 激活 r43 环境
+conda activate bioR43
+
+# 安装 IRkernel（R 的 Jupyter 支持）
+R -e "install.packages('IRkernel', repos='https://cran.rstudio.com/')"
+
+# 注册为 Jupyter Kernel（显示名称为 "R 4.3"）
+R -e "IRkernel::installspec(name = 'bioR43', displayname = 'bioR43')"
+
+方法 A：通过 Notebook 选择 Kernel
+打开 .ipynb 文件。
+点击右上角的 Kernel 名称（如 “Python 3.10”）。
+在列表中选择：
+“R 4.3”
+“R 4.4”
+点击 “Select”。
+方法 B：通过命令面板选择
+按 Ctrl+Shift+P（Windows/Linux）或 Cmd+Shift+P（macOS）。
+输入：
+
+通过 Conda 环境启动 VS Code。
+解决：在终端中激活 Conda 环境后启动 VS Code：
+bash
+
+conda activate bioR43
+code .        # 打开 VS Code 并进入当前目录
+
+Jupyter: Select Interpreter to Start Jupyter Server 
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))

@@ -1,0 +1,117 @@
+---
+title: "Demon Of RMarkdown"
+author: "Zhen Gao"
+date: "2025-10-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Mutation Annotation Format (MAF) 
+This package attempts to summarize, analyze, annotate and visualize MAF files any studies in MAF format, including TCGA 
+maftools functions can be categorized into mainly Visualization and Analysis modules.
+
+Install from Bioconductor repository 
+
+
+```{r libarary}
+# Install from GitHub repository
+# BiocManager::install("PoisonAlien/maftools")
+# BiocManager::install("maftools")
+# install.packages("mclust")
+
+```
+
+
+
+
+```{r cars}
+library(maftools)
+```
+
+
+
+```{r pressure, echo=FALSE}
+# path to TCGA LAML MAF file
+# AML as the abbreviation for acute myeloid leukemia
+# LAML used within TCGA for unkown reason 
+# https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations
+
+laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools') 
+
+#clinical information containing survival information and histology. This is optional
+laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') 
+
+laml = read.maf(maf = laml.maf, clinicalData = laml.clin)
+
+laml
+
+```
+
+2 space in the end of line means change line 
+
+General Markdown Formatting (for both HTML and PDF where supported):
+Bold: **bold text** or __bold text__  
+Italic: *italic text* or _italic text_  
+Italic bold: *__italic text__* or _**italic text**_  
+Strikethrough: ~~strikethrough~~  
+Code: `` code ``  
+Superscript: text^super^  
+Subscript: text~sub~  
+
+
+<span style="color: red;">This text is red.</span>  
+<span style="color: blue;">This text is blue.</span>  
+<span style="color: orange;">This text is blue.</span>  
+<span style="color: purple">This text is blue.</span>  
+<span style="color: lightgray">This text is blue.</span>  
+<span style="color: lightblue">This text is blue.</span>  
+<span style="color: limon">This text is blue.</span>  
+<span style="color: cyan">This text is blue.</span>  
+<span style="color: magenta">This text is blue.</span>  
+<span style="color: olive">This text is blue.</span>  
+<span style="color: pink">This text is blue.</span>  
+
+<span style="color: #FF5733;">This text uses a hexadecimal color code.</span> 
+
+
+foo <font color='brown'>bar</font> foo
+
+
+<a >blue color</a>
+
+	`red color`
+
+#### list 
+
+ordered: 
+
+1. Main item one
+    1. Sub-item one
+    1. Sub-item two
+2. Main item two
+    1. Another sub-item
+
+
+unordered 1:
+
+* Item 1
+* Item 2
+  * Nested Item 2.1
+  * Nested Item 2.2
+
+
+unordered 2:
+
++ Item 3
++ Item 4
++ Item 4
+
+unordered 1:
+
+- Item 3
+- Item 4
+- Item 4
