@@ -1,0 +1,350 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+conda activate R43
+R -e "install.packages('IRkernel', repos='https://cran.rstudio.com/')" #  安装 IRkernel（R 的 Jupyter 支持）
+R -e "IRkernel::installspec(name = 'bioR43', displayname = 'bioR43')" # 注册为 Jupyter Kernel（显示名称为 "R 4.3"）
+code .        # 打开 VS Code 并进入当前目录
+
+#### Figures https://jbengler.github.io/tidyplots/
+#### https://cran.r-project.org/web/packages/tidyplots/vignettes/tidyplots.html
+
+```{r}
+#install.packages("tidyplots")
+#install.packages("psych")
+```
+
+```{r}
+library(tidyplots)
+library("psych")
+```
+
+```{r, fig.show='hold'}
+study 
+dim(study )
+describe(study )
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score)
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4)
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score) |> 
+  add_data_points() |> 
+  add_mean_dash() |> 
+  add_sem_errorbar()
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = group, y = score, color = dose) |> 
+  add_data_points() |> 
+  add_mean_dash() |> 
+  add_sem_errorbar()
+```
+```{r, echo=FALSE, results='asis'}
+#### removal 
+study |> 
+  tidyplot(x = group, y = score, color = dose) |> 
+  add_data_points() |> 
+  add_mean_dash() |> 
+  add_sem_errorbar() |> 
+  remove_legend_title() |> 
+  remove_y_axis()
+
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar()
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points_beeswarm(shape = 1) |>
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  adjust_size(width = 20, height = 20) # <<============ height
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  adjust_title("This is my fantastic plot title") |> # title 
+  adjust_x_axis_title("Treatment group") |>
+  adjust_y_axis_title("Disease score") |>
+  adjust_legend_title("") |>                         # title set null 
+  adjust_caption("Here goes the caption")            # bottom 
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  adjust_colors(new_colors = c("#644296","#F08533","#3B78B0", "#D1352C"))
+
+
+
+```
+
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  adjust_colors(new_colors = colors_discrete_seaside) # color_scheme
+
+```
+
+# please see the 2_color.cmd
+
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  rename_x_axis_labels(new_names = c("A" = "This",
+                                     "B" = "is",
+                                     "C" = "totally",
+                                     "D" = "new"))
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  reorder_x_axis_labels("D", "C") # bring the treatment “D” and “C” to the front.
+```
+```{r, echo=FALSE, results='asis'}
+study |>              # Sort the treatments by their score. Y-value 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  sort_x_axis_labels()
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  reverse_x_axis_labels()
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_sem_errorbar() |> 
+  add_mean_dash() |> 
+  theme_ggplot2()
+
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_data_points() |> 
+  add_sem_errorbar() |> 
+  add_mean_dash() |> 
+  theme_minimal_y() |> 
+  remove_x_axis_line()
+```
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = group, y = score, color = group) |> 
+  add_data_points() |> 
+  add_sem_errorbar() |> 
+  add_mean_dash() |> 
+  adjust_size(width = 30, height = 25) |> 
+  split_plot(by = dose)
+```
+```{r, echo=FALSE, results='asis'}
+getwd()
+
+```
+
+
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = group, y = score, color = group) |> 
+  add_data_points() |> 
+  add_sem_errorbar() |> 
+  add_mean_dash() |> 
+  save_plot("my_plot.pdf")
+```
+
+
+
+
+
+
+```{r, fig.show='hold'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  add_data_points_beeswarm() # beeswarm 
+```
+
+
+```{r, echo=FALSE, results='asis'}
+study |> 
+  tidyplot(x = group, y = score, color = dose) |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_mean_dash() |> 
+  add_mean_value()
+```
+
+```{r, fig.show='hold'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_boxplot() |> 
+  add_test_pvalue(ref.group = 1)
+```
+
+
+```{r, fig.show='hold'}
+study |> 
+  tidyplot(x = treatment, y = score, color = treatment) |> 
+  add_mean_bar(alpha = 0.4) |> 
+  add_sem_errorbar() |> 
+  add_data_points_beeswarm() |> 
+  view_plot(title = "Default color scheme: 'friendly'") |> 
+  
+  adjust_colors(colors_discrete_apple) |> 
+  view_plot(title = "Alternative color scheme: 'apple'")
+```
+
+```{r, fig.show='hold'}
+describe(energy)
+```
+
+```{r, echo=FALSE, results='asis'}
+energy |> 
+  tidyplot(x = year, y = energy, color = energy_source) |> 
+  add_barstack_absolute()
+```
+
+
+
+```{r, echo=FALSE, results='asis'}
+energy |> 
+  dplyr::filter(year %in% c(2005, 2010, 2015, 2020)) |> 
+  tidyplot(y = energy, color = energy_source) |> 
+  add_donut() |> 
+  adjust_size(width = 50, height = 50) |>
+  split_plot(by = year)
+```
+
+
+
+```{r, echo=FALSE, results='asis'}
+describe(energy_week )
+```
+
+
+```{r, echo=FALSE, results='asis'}
+
+energy_week |> 
+  tidyplot(x = date, y = power, color = energy_source) |> 
+  add_areastack_absolute()
+```
+```{r, echo=FALSE, results='asis'}
+energy_week |> 
+  tidyplot(x = date, y = power, color = energy_source) |> 
+  add_areastack_relative()
+```
+
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+
+describe(time_course)
+
+```
+
+
+```{r, echo=FALSE, results='asis'}
+time_course |>
+  tidyplot(x = day, y = score, color = treatment) |>
+  add_mean_line() |>
+  add_mean_dot() |>
+  add_sem_ribbon()
+```
+
+```{r, echo=FALSE, results='asis'}
+
+describe(climate)
+```
+
+```{r, echo=FALSE, results='asis'}
+climate |>
+  tidyplot(x = month, y = year, color = max_temperature) |>
+  add_heatmap()
+
+```
+
+
+
+
+```{r, echo=FALSE, results='asis'}
+gene_expression 
+
+```
+
+
+```{r, echo=FALSE, results='asis'}
+
+gene_expression |> 
+  dplyr::filter(external_gene_name %in% c("Apol6", "Col5a3", "Vgf", "Bsn")) |> 
+  tidyplot(x = condition, y = expression, color = sample_type) |> 
+  add_mean_dash() |> 
+  add_sem_errorbar() |> 
+  add_data_points_beeswarm() |> 
+  add_test_asterisks(hide_info = TRUE) |> 
+  remove_x_axis_title() |> 
+  adjust_size(width = 38, height = 38) |>  ##  25 25 plot too small 
+  split_plot(by = external_gene_name)
+
+```
+```{r, echo=FALSE, results='asis'}
+
+```
+
+
+

@@ -48,30 +48,57 @@ MAF files contain many fields ranging from chromosome names to cosmic annotation
 #```{r, eval=FALSE} 
 if (!require("BiocManager"))
     install.packages("BiocManager")
-#BiocManager::install("maftools")
-#BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
-#BiocManager::install("RaggedExperiment")
-BiocManager::install("MultiAssayExperiment")
+BiocManager::install("maftools")
+# BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+# BiocManager::install("RaggedExperiment")
+# BiocManager::install("MultiAssayExperiment")
 
 
 ```
 ```{r eval=FALSE, include=FALSE}
-# install.packages("magick")
-# install.packages("barplot3D")
 
+BiocManager::install("maftools", force = TRUE)
+
+
+```
+
+conda install conda-forge/label/cf202003::r-devtools
+
+
+```{r}
+install.packages("devtools")
+
+devtools::install_github("ifellows/wordcloud")
+
+```
+```{r}
+
+
+devtools::install_github("ifellows/wordcloud")
+
+```
+
+
+conda install bioconda::bioconductor-maftool -y
+```{r eval=FALSE, include=FALSE}
+# install.packages("magick")
+#install.packages("plot3D")
+# install.packages("tidyplots") # install.packages("Matrix")   conda install r-matrix -y 
+# install.packages("wordcloud") # conda install -c conda-forge r-wordcloud -y
+install.packages('R.utils')
 # install.packages("remotes")
 # library(remotes)
 # install_version("barplot3d", version = "1.0", repos = "https://cran.r-project.org/src/contrib/Archive/barplot3d/")
 # 
-install.packages("plot3D") # shift Alt Down 
-library(plot3D)
+# install.packages("plot3D") # shift Alt Down 
+# install.packages("ggplot2")
+#library(plot3D)
 ```
 
 # Overview of the package
 
-maftools functions can be categorized into mainly Visualization and Analysis modules. Each of these functions and a short description is summarized as shown below. Usage is simple, just read your MAF file with `read.maf` (along with copy-number data if available) and pass the resulting MAF object to the desired function for plotting or analysis.
-
-![](overview.png)
+maftools functions can be categorized into mainly Visualization and Analysis modules. 
+Each of these functions and a short description is summarized as shown below. Usage is simple, just read your MAF file with `read.maf` (along with copy-number data if available) and pass the resulting MAF object to the desired function for plotting or analysis.
 Besides the MAF files, maftools also facilitates processing of BAM files. Please refer to below vignettes and sections to learn more.
 
 
@@ -86,6 +113,7 @@ Besides the MAF files, maftools also facilitates processing of BAM files. Please
 ## Reading MAF files.
 
 ```{r loadlib, results='hide', message=FALSE}
+library(wordcloud)
 library(maftools)
 ```
 

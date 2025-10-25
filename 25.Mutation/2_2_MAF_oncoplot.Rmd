@@ -49,11 +49,11 @@ oncoplot(maf = laml, draw_titv = TRUE)
 ```
 
 
-## Changing colors for variant classifications 
+## Changing colors for variant classifications , this one is very elgent  
 
 ```{r}
 #One can use any colors, here in this example color palette from RColorBrewer package is used
-vc_cols = RColorBrewer::brewer.pal(n = 8, name = 'Paired')
+vc_cols = RColorBrewer::brewer.pal(n = 8, name = 'Paired') # << ==== change colors here 
 names(vc_cols) = c(
   'Frame_Shift_Del',
   'Missense_Mutation',
@@ -67,7 +67,8 @@ names(vc_cols) = c(
 
 print(vc_cols)
 
-oncoplot(maf = laml, colors = vc_cols, top = 10)
+#oncoplot(maf = laml, colors = vc_cols, top = 10) # << ==== change colors here 
+oncoplot(maf = laml,, draw_titv = TRUE,  colors = vc_cols, top = 10) # << ==== change colors here 
 ```
 
 
@@ -78,6 +79,20 @@ There are two ways one include CN status into MAF.
 
 ### GISTIC results
 Most widely used tool for copy number analysis from large scale studies is GISTIC and we can simultaneously read gistic results along with MAF. GISTIC generates numerous files but we need mainly four files `all_lesions.conf_XX.txt`, `amp_genes.conf_XX.txt`, `del_genes.conf_XX.txt`, `scores.gistic` where XX is confidence level. These files contain significantly altered genomic regions along with amplified and deleted genes respectively.
+
+
+GISTIC (Genomic Identification of Significant Targets in Cancer) 是一个由 Broad 研究所开发的著名工具。
+
+核心功能： 它的唯一目的是分析拷贝数变异 (Copy Number Variations, CNVs) 数据。
+
+工作原理： GISTIC 会分析一大批肿瘤样本（比如来自 TCGA 的数据），以识别在统计上显著的、反复出现的基因组区域扩增 (Amplification) 或缺失 (Deletion)。
+
+G-score： 它为每个基因组区域计算一个 “G-score”，该分数同时考虑了变异的频率（在多少样本中出现）和幅度（拷贝数变化有多大）。
+
+最终输出： GISTIC 的最终输出是一些表格文件，列出了显著扩增或缺失的“峰值”区域（peaks），这些区域被认为是驱动癌症发生的潜在区域（包含癌基因或抑癌基因）。
+
+ZG 思考： 这个看起来是对一大批肿瘤样本进行分析，然后输出一些峰值区域，这些区域可能是驱动癌症发生的潜在区域。
+不是单个病人，可以参考下面生产的图的标题
 
 ```{r, fig.height=5,fig.width=10, fig.align='left'}
 #GISTIC results LAML
@@ -106,9 +121,9 @@ laml.plus.gistic = read.maf(
 ```{r, fig.align='left',fig.height=5,fig.width=10, eval=T, fig.align='left'}
 oncoplot(maf = laml.plus.gistic, top = 10)
 ```
-
+<font color='brown'>
 This plot shows frequent deletions in TP53 gene which is located on one of the significantly deleted locus 17p13.2.
-
+</font> foo
 ### Custom copy-number table
 In case there is no GISTIC results available, one can generate a table containing CN status for known genes in known samples. This can be easily created and read along with MAF file.
 

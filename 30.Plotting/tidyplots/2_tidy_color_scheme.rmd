@@ -1,0 +1,179 @@
+---
+title: "tidyplot_color_scheme"
+output: html_document
+date: "2025-10-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute()
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_seaside)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_friendly_long)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_apple)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_ibm)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_candy)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_alger)
+```
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(colors_discrete_rainbow)
+```
+
+```{r }
+colors_continuous_viridis
+```
+
+```{r }
+climate |> 
+  tidyplot(x = month, y = year, color = max_temperature) |> 
+  add_heatmap()
+```
+
+```{r }
+climate |> 
+  tidyplot(x = month, y = year, color = max_temperature) |> 
+   add_heatmap() |> 
+  adjust_colors(new_colors = colors_continuous_inferno)
+```
+
+```{r }
+climate |> 
+  tidyplot(x = month, y = year, color = max_temperature) |> 
+  add_heatmap() |> 
+  adjust_colors(new_colors = colors_continuous_mako)
+```
+```{r }
+climate |> 
+  tidyplot(x = month, y = year, color = max_temperature) |> 
+  add_heatmap() |> 
+  adjust_colors(new_colors = colors_continuous_mako)
+```
+```{r }
+climate |> 
+  tidyplot(x = month, y = year, color = max_temperature) |> 
+  add_heatmap() |> 
+  adjust_colors(new_colors = colors_continuous_rocket)
+```
+```{r }
+colors_diverging_blue2red
+```
+```{r }
+gene_expression |> 
+  tidyplot(x = sample, y = external_gene_name, color = expression) |> 
+  add_heatmap(scale = "row") |>
+  sort_y_axis_labels(direction) |> 
+  adjust_size(height = 100)
+#no color asigned as next, just use default color << ===
+```
+```{r }
+gene_expression |> 
+  tidyplot(x = sample, y = external_gene_name, color = expression) |> 
+  add_heatmap(scale = "row") |>
+  sort_y_axis_labels(direction) |> 
+  adjust_size(height = 100) |> 
+  adjust_colors(new_colors = colors_diverging_blue2brown) # << 
+```
+```{r }
+gene_expression |> 
+  tidyplot(x = sample, y = external_gene_name, color = expression) |> 
+  add_heatmap(scale = "row") |>
+  sort_y_axis_labels(direction) |> 
+  adjust_size(height = 100) |> 
+  adjust_colors(new_colors = colors_diverging_spectral) # <<== color 
+```
+```{r }
+gene_expression |> 
+  tidyplot(x = sample, y = external_gene_name, color = expression) |> 
+  add_heatmap(scale = "row") |>
+  sort_y_axis_labels(direction) |> 
+  adjust_size(height = 100) |> 
+  adjust_colors(new_colors = colors_diverging_icefire)
+```
+
+
+Custom color schemes 
+
+```{r }
+my_colors <- 
+  new_color_scheme(c("#ECA669","#E06681","#8087E2","#E2D269"),
+                   name = "my_custom_color_scheme")
+my_colors
+```
+
+### use my colors <<==========================================
+
+```{r }
+energy |> 
+  tidyplot(year, energy, color = energy_source) |> 
+  add_barstack_absolute() |> 
+  adjust_colors(new_colors = my_colors)
+```
+
+```{r }
+c(
+"#4FAE62")
+```
+```{r }
+colors_discrete_metro[2:4]
+```
+
+```{r }
+c(colors_discrete_metro, colors_discrete_seaside)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
