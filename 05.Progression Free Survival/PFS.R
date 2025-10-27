@@ -1,4 +1,3 @@
-
 #if (!requireNamespace("BiocManager", quietly = TRUE))
 #    install.packages("BiocManager")
 #BiocManager::install("limma")
@@ -7,24 +6,24 @@
 #install.packages("survminer")
 
 
-#ÒıÓÃ°ü
 library(limma)
 library(survival)
 library(survminer)
 
-expFile="geneExp.txt"     #±í´ïÊı¾İÎÄ¼ş
-cliFile="Survival_SupplementalTable_S1_xena_sp"      #ÁÙ´²Êı¾İÎÄ¼ş
-#setwd("C:\\biowolf\\Gene\\11.PFS")      #ÉèÖÃ¹¤×÷Ä¿Â¼
+expFile="geneExp.txt"     #
+cliFile="Survival_SupplementalTable_S1_xena_sp"      #?Ù´??????Ä¼?
 
-#¶ÁÈ¡±í´ïÊı¾İÎÄ¼ş
+getwd()
+setwd("C:\\Users\\zhen-\\Code\\R_code\\R_For_DS_Omics\\05.PFS")      #???Ã¹???Ä¿Â¼
+
+#
 rt=read.table(expFile, header=T, sep="\t", check.names=F, row.names=1)
 gene=colnames(rt)[3]
 data=rt
-#¸ù¾İÄ¿±ê»ùÒò±í´ïÁ¿¶ÔÑùÆ·½øĞĞ·Ö×é
-Type=ifelse(data[,gene]>median(data[,gene]), "High", "Low")
+e=ifelse(data[,gene]>median(data[,gene]), "High", "Low")
 data=cbind(as.data.frame(data), Type)
 
-#¶ÁÈ¡ÁÙ´²Êı¾İÎÄ¼ş
+#??È¡?Ù´??????Ä¼?
 cli=read.table(cliFile, header=T, sep="\t", check.names=F, row.names=1)
 cli=cli[,c("PFI.time", "PFI")]
 cli=na.omit(cli)
@@ -33,13 +32,13 @@ cli$futime=cli$futime/365
 cli=as.matrix(cli)
 row.names(cli)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", row.names(cli))
 
-#Êı¾İºÏ²¢²¢Êä³ö½á¹û
+#???İºÏ²???????????
 sameSample=intersect(row.names(data), row.names(cli))
 data=data[sameSample,,drop=F]
 cli=cli[sameSample,,drop=F]
 rt=cbind(as.data.frame(cli), data)
 
-#±È½Ï¸ßµÍ±í´ï×éÖ®¼äµÄÉú´æ²îÒì£¬µÃµ½ÏÔÖøĞÔpÖµ
+#?È½Ï¸ßµÍ±?????Ö®???????????ì£¬?Ãµ???????pÖµ
 diff=survdiff(Surv(futime, fustat) ~ Type, data=rt)
 pValue=1-pchisq(diff$chisq, df=1)
 if(pValue<0.001){
@@ -50,7 +49,7 @@ if(pValue<0.001){
 fit <- survfit(Surv(futime, fustat) ~ Type, data = rt)
 
 		
-#»æÖÆÉú´æÇúÏß
+#????????????
 surPlot=ggsurvplot(fit, 
 		           data=rt,
 		           conf.int=F,
@@ -68,7 +67,7 @@ surPlot=ggsurvplot(fit,
 		           risk.table.col = "strata",
 		           risk.table.height=.25)
 
-#Êä³öÉú´æÇúÏß
+#????????????
 pdf(file=paste0(gene, ".PFS.pdf"), width=5.5, height=5, onefile=FALSE)
 print(surPlot)
 dev.off()

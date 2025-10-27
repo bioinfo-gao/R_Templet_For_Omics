@@ -7,25 +7,24 @@
 # installation of package 'Publish' had non-zero exit status
 # installation of package 'future.apply' had non-zero exit status
 
-'
 # ==> conda install -c conda-forge r-timeroc -y # great to settle conflict 
 # ==> Ctrl + /         comment out a line 
 # ==> Ctrl shift K     delete a  line 
 # ==> Ctrl + Delete    delete a word 
 # ==> Ctrl+K Ctrl+S  Search for the command "Delete All Right" in the Keyboard Shortcuts editor 
 # ==> Ctrl+ Alt + x  delete all Right
-# install.packages("survivalROC")
-# install.packages("survminer", dependencies = TRUE)
-# install.packages("doBy", dependencies = TRUE)
-# install.packages("pbkrtest", dependencies = TRUE)
-# install.packages("timeROC", dependencies = TRUE)
+install.packages("survivalROC")
+install.packages("survminer", dependencies = TRUE)
+install.packages("doBy", dependencies = TRUE)
+install.packages("pbkrtest", dependencies = TRUE)
+install.packages("timeROC", dependencies = TRUE)
 
 library(survivalROC)
 library(survival)
 library(survminer)
 library(timeROC)
 
-setwd("C:\\Users\\zhen-\\Documents\\Code\\R_code\\R_Templet_For_Omics\\04.ROC-Analysis")                     
+setwd("C:\\Users\\zhen-\\Code\\R_code\\R_For_DS_Omics\\04.ROC-Analysis")                     
 
 rocFilter=0                                                                  
 rt=read.table("surSigExp.txt",header=T,sep="\t",check.names=F,row.names=1)   
@@ -52,15 +51,23 @@ write.table(outTab,file="ROC.xls",sep="\t",row.names=F,quote=F)
 rocSigExp=rt[,sigGenes]
 
 rocSigExp=cbind(id=row.names(rocSigExp),rocSigExp)
+rocSigExp
+dim(rocSigExp)
 
 write.table(rocSigExp,file="rocSigExp.txt",sep="\t",row.names=F,quote=F)
 
 
 gene=colnames(rt)[3]
+gene
+dim(rt)
+
+# this sentence is WRONG, the next script has details 
 ROC_rt=timeROC(T=rt$time, delta=rt$event,
                marker=rt[,gene], cause=1,
                weighting='aalen',
                times=c(1,3,5,10), ROC=TRUE)
+ROC_rt
+
 pdf(file=paste0(gene, ".ROC.pdf"), width=5, height=5)
 plot(ROC_rt,time=1,col='green',title=FALSE,lwd=2)
 plot(ROC_rt,time=3,col='blue',add=TRUE,title=FALSE,lwd=2)

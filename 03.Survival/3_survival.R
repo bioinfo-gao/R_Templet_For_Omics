@@ -16,7 +16,7 @@ cliFile="time.txt"
 
 rt2=read.table(expFile, header=T, check.names=F, row.names=1)
 
-exp_data_T rt2%>% dplyr::select(str_which(colnames(.), "-01A")) #
+exp_data_T = rt2%>% dplyr::select(str_which(colnames(.), "-01A")) #
 
 nT = ncol(exp_data_T) 
 

@@ -42,15 +42,44 @@ knitr::opts_chunk$set(
 ```
 ```{r setup, message=FALSE, warning=FALSE}
 library(maftools)
+library(psych)
+library(R.utils)
+# gzip("C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools/extdata/tcga_laml.maf") 
+# gunzip("C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools/extdata/tcga_laml.maf.gz") 
+# con <- gzfile("C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools/extdata/tcga_laml.maf.gz", "rt") # "rt" for read text mode
+# # Read the data (e.g., as a CSV)
+# data <- read.csv(con, sep = ".", , header = T)
+# # Close the connection
+# close(con)
 ```
+
 ```{r setup, message=FALSE, warning=FALSE}
-library(maftools)
+find.package("maftools")
+# "C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools"
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+lamf=read.table("C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools/extdata/tcga_laml.maf/tcga_laml.maf",sep = "\t",header = T)
+
+dim(lamf)
+head(lamf)
+tail(lamf)
+describe(lamf)
 ```
 
 
-"C:/Users/zhen-/AppData/Local/R/win-library/4.5/maftools"
 
 
+```{r}
+#path to TCGA LAML MAF file
+laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')
+#clinical information containing survival information and histology. This is optional
+laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools')
+
+laml = read.maf(maf = laml.maf,
+                clinicalData = laml.clin,
+                verbose = FALSE)
+```
 ```{r}
 #path to TCGA LAML MAF file
 laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')

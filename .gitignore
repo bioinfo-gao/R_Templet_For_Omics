@@ -6,3 +6,8 @@
 .pdf
 .jpeg
 .jpg
+*counts.txt
+*TPM.txt
+*FPKM.txt
+*FPKM_UQ.txt
+sheet.tsv
