@@ -1,8 +1,10 @@
 # 安装必要的R包
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install(c("xcms", "CAMERA", "pheatmap", "limma", "ggplot2"))
+BiocManager::install(c("xcms", "CAMERA", "pheatmap", "limma", "MSnbase", "ggplot2"))
 BiocManager::install("faahKO")
+
+
 
 
 library(MSnbase)
