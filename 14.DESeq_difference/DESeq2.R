@@ -1,4 +1,6 @@
-
+setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/14.DESeq_difference")
+#BiocManager::install("DESeq2") # there will be questions in popup, choose NO!
+#BiocManager::install("DESeq2", version = "1.48.1")
 library("DESeq2")
 library(tidyverse)
 library(ggsignif) 
@@ -9,8 +11,10 @@ library(ggpubr)
 library(beepr)
 library(gplots)
 library(pheatmap)
+
+
 # 读取表达量的表格
-rt <- read.table( "combined_RNAseq_counts.txt",header=T,sep="\t",comment.char="",check.names=F)
+rt <- read.table( "../13.edgeR/combined_RNAseq_counts.txt",header=T,sep="\t",comment.char="",check.names=F)
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
 exp=rt[,2:ncol(rt)]
@@ -52,14 +56,19 @@ exp=as.data.frame(exp)
 colnames(exp)=c("condition")
 write.table(exp, file="group.txt",sep="\t",quote=F)
 colData <- read.table( "group.txt",header=T,sep="\t",row.names=1,comment.char="",check.names=F)
+
 # 构建DESeq2中的对象
 dds <- DESeqDataSetFromMatrix(countData = countData,colData = colData,design = ~ condition)
+
 # 指定哪一组作为对照组
 dds$condition <- relevel(dds$condition, ref = "Normal")
+
 #计算每个样本的归一化系数
 dds <- estimateSizeFactors(dds)
+
 #估计基因的离散度
 dds <- estimateDispersions(dds)
+
 #差异分析
 dds <- nbinomWaldTest(dds)
 dds <- DESeq(dds)
@@ -82,9 +91,11 @@ dev.off()
 pdf(file="normalBox.pdf")
 boxplot(countData_new, col = cols,main="expression value",xaxt = "n")
 dev.off()
+
 pdf(file="histold.pdf")
 hist(countData_old)
 dev.off()
+
 pdf(file="histnew.pdf")
 hist(countData_new)
 dev.off()
