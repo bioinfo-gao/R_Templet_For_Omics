@@ -11,9 +11,11 @@ library(harmony)
 
 
 rm(list = ls())
-setwd("H:/BCAT1/R分析/data/")
+setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/53.Single_and_Spatial") # setwd("H:/BCAT1/R分析/data/")
 
-count <- Read10X(data.dir = './GSE239676/', gene.column = 1)  # 提取第1列作为基因名
+#count <- Read10X(data.dir = './GSE239676/', gene.column = 1)  # 提取第1列作为基因名
+count <- Read10X(data.dir = "./filtered_gene_bc_matrices/hg19/") # pbmc
+
 sce <- CreateSeuratObject(
     counts = count,
     project = "GSE239676",  # 这里用具体的字符串
@@ -51,7 +53,7 @@ VlnPlot(sce,features = c("nFeature_RNA","nCount_RNA","mt_percent","HB_percent"),
 
 #table(GSE163558$orig.ident)
 
-save(sce,file = "H:/BCAT1/R分析/过程文件/质控.Rdata")
+save(sce,file = "质控.Rdata")
 
 
 ####标准化归一化以及降维一步到位####
@@ -117,3 +119,4 @@ table(sce$celltype)
 ###ggplot函数作图###
 p = DimPlot(sce,reduction = 'umap',group.by = 'celltype',label = T,raster = F)+
     theme(axis.text = element_blank());p
+

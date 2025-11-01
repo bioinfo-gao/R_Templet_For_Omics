@@ -16,12 +16,13 @@ https://www.bioconductor.org/packages/release/bioc/vignettes/SingleCellExperimen
 
 
 ```{r}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# 
+# BiocManager::install("SingleCellExperiment")
+# BiocManager::install("scater")
+# BiocManager::install("scran") # <<<============ NOTIECE POPUP!!!!
 
-BiocManager::install("SingleCellExperiment")
-BiocManager::install("scater")
-BiocManager::install("scran")
 # cell ranger 
 # seurat eigengene Popularized by its use in Seurat, graph-based clustering 
 
@@ -33,7 +34,10 @@ library(scran)
 https://ftp.ncbi.nlm.nih.gov/geo/series/GSE126nnn/GSE126030/suppl/
 
 ```{bash eval=FALSE}
-# I run this choken with ==> Code ==> Terminal ==> send to terminal
+# I run this code with ==> Code ==> Terminal ==> send to terminal
+# OR use git bash to run  curl 
+# or curl # now works in windows 
+curl -O https://ftp.ncbi.nlm.nih.gov/geo/series/GSE126nnn/GSE126030/suppl/GSE126030_RAW.tar
 wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE126nnn/GSE126030/suppl/GSE126030_RAW.tar
 
 tar -xvf GSE126030_RAW.tar
@@ -46,7 +50,10 @@ library(here) # here() starts at C:/Users/zhen-/Documents
 ?here
 # here("C:/Users/zhen-/Downloads/")
 
-counts_df<- read_tsv(here("C:/Users/zhen-/Downloads/GSM3589407_PP002swap.filtered.matrix.txt.gz"))
+counts_df<- read_tsv( ("GSM3589407_PP002swap.filtered.matrix.txt.gz"))
+#counts_df<- read_tsv(here("C:/Users/zhen-/Downloads/GSM3589407_PP002swap.filtered.matrix.txt.gz"))
+dim(counts_df)
+counts_df[1:2,1:5]
 
 colnames(counts_df) %>% tail()
 
@@ -62,8 +69,7 @@ counts_df<- counts_df[, -2466]
 
 counts_df[1:5, 1:5]
 
-counts_mat<- counts_df[, -c(1,2)] %>%
-  as.matrix()
+counts_mat<- counts_df[, -c(1,2)] %>%  as.matrix()
 
 rownames(counts_mat)<- counts_df$Gene
 
@@ -166,7 +172,6 @@ sce <- scater::runPCA(sce)
 
 sce
 
-
 reducedDim(sce, "PCA")[1:5, 1:5]
 
 dim(reducedDim(sce, "PCA"))
@@ -176,7 +181,6 @@ sce <- scater::runTSNE(sce, perplexity = 0.1)
 reducedDim(sce, "TSNE")[1:5, 1:2]
 
 reducedDims(sce)
-
 
 reducedDimNames(sce)
 ```

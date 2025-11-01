@@ -1,5 +1,5 @@
 setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/16.Limma_edgeR_DESeq_3_packages_diff")
-install.packages("VennDiagram")
+#install.packages("VennDiagram")
 library(edgeR)
 library(data.table)
 library(tidyverse)
@@ -18,7 +18,7 @@ padj = 0.05
 foldChange= 2
 
 
-#####limma DE #####
+##### (1) limma DE #####  <<<===============================================
 
 rt1=read.table("../01.New_TCGA//combined_RNAseq_FPKM.txt",sep="\t",header=T,check.names=F)
 dim(rt1)
@@ -53,6 +53,8 @@ dim(data1)
 data1[1:2, 1:5]
 
 
+# ===========================<<<<<<<<<<<<<<<
+
 exp1_data_T = data1%>% dplyr::select(str_which(colnames(.), "-01A")) # 
 nT = ncol(exp1_data_T) 
 exp1_data_N = data1%>% dplyr::select(str_which(colnames(.), "-11A"))
@@ -61,15 +63,17 @@ rt1= cbind(exp1_data_N, exp1_data_T)
 
 rt1=normalizeBetweenArrays(rt1)
 group1=sapply(strsplit(colnames(rt1),"\\-"), "[", 4)
-group1=sapply(strsplit(group1,""), "[", 1)
+group1=sapply(strsplit(group1,""), "[", 1) # No seperator means split string to character
 group1=gsub("2", "1", group1)
+
 conNum1=length(group1[group1==1])       #????????Ʒ??Ŀ
 treatNum1=length(group1[group1==0])     #????????Ʒ??Ŀ
-#differential????????
+
+#differential Analysis
 class <- c(rep("con",conNum1),rep("treat",treatNum1))  
 design <- model.matrix(~factor(class)+0)
 colnames(design) <- c("con","treat")
-#?㷽??
+
 df.fit <- lmFit(rt1,design)
 df.matrix<- makeContrasts(con - treat,levels=design)
 fit<- contrasts.fit(df.fit,df.matrix)
@@ -90,21 +94,26 @@ save(diff_signif1, file = 'limma_diff1.Rdata')
 
 
 
-#####DESeq DE #####
+##### (2) DESeq DE ##### <<<===============================================
 rt <- read.table( "../01.New_TCGA/combined_RNAseq_counts.txt",header=T,sep="\t",comment.char="",check.names=F)
 rt=as.matrix(rt)
-rownames(rt)=rt[,1]
-exp=rt[,2:ncol(rt)]
+
+rt[1:2, 1:5]
+
+rownames(rt)= make.unique(rt[,1]) 
+
+exp=rt[,3:ncol(rt)] # 3
+
 dimnames=list(rownames(exp),colnames(exp))
 data=matrix(as.numeric(as.matrix(exp)),nrow=nrow(exp),dimnames=dimnames)
 data=avereps(data)
 data=data[rowMeans(data)>1,]
 data2=as.data.frame(data)
+data2[1:2, 1:5]
 
-
-exp_data_T = data2%>% dplyr::select(str_which(colnames(.), "-01A$")) # ƥ????????????ʾд??
+exp_data_T = data2 %>% dplyr::select(str_which(colnames(.), "-01A$")) # ƥ????????????ʾд??
 nT = ncol(exp_data_T) 
-exp_data_N = data2%>% dplyr::select(ends_with("-11A"))
+exp_data_N = data2 %>% dplyr::select(ends_with("-11A"))
 nN = ncol(exp_data_N) 
 data= cbind(exp_data_N, exp_data_T)
 
@@ -115,11 +124,11 @@ group1=gsub("2", "1", group1)
 conNum=length(group1[group1==1])       #????????Ʒ??
 treatNum=length(group1[group1==0])     #????????Ʒ??
 
-count <- floor(data)#??ȡ
-#count <- ceiling(count)#??ȡ
-# Ԥ???���???˵ͷ??ȵ?????
+count <- floor(data) # EDSeg data is continuous 
+
 countData <- count[apply(count, 1, sum) > 0 , ]
-# ??ȡcolnames(countData)
+
+data=colnames(countData)
 Type=c(rep(1,conNum), rep(2,treatNum))
 exp=cbind(data, Type)
 exp=as.data.frame(exp)
@@ -132,38 +141,47 @@ exp=as.data.frame(exp)
 colnames(exp)=c("condition")
 write.table(exp, file="group.txt",sep="\t",quote=F)
 colData <- read.table( "group.txt",header=T,sep="\t",row.names=1,comment.char="",check.names=F)
-# ????DESeq2?еĶ???
+
+
 dds <- DESeqDataSetFromMatrix(countData = countData,colData = colData,design = ~ condition)
-# ָ????һ????Ϊ??????
 dds$condition <- relevel(dds$condition, ref = "Normal")
-#????ÿ???????Ĺ?һ??ϵ??
+dds$condition
+summary(dds)
+dds
+
 dds <- estimateSizeFactors(dds)
-#?��ƻ???????ɢ??
-dds <- estimateDispersions(dds)
-#????????
+dds <- estimateDispersions(dds)  # 15 min 
+# gene-wise dispersion estimates
+# gene-wise dispersion estimates 
+# mean-dispersion relationship
+# final dispersion estimates
+
 dds <- nbinomWaldTest(dds)
-dds <- DESeq(dds) 
+dds <- DESeq(dds)              # another 18 min
 allDEG2 <- as.data.frame(results(dds))
-#??ȡ?????????????Ĳ???????
+
 padj = 0.05
 foldChange= 2
-diff_signif2 = allDEG2[(allDEG2$padj < padj & 
-                          (allDEG2$log2FoldChange>foldChange | allDEG2$log2FoldChange<(-foldChange))),]
+diff_signif2 = allDEG2[(allDEG2$padj < padj & (allDEG2$log2FoldChange > foldChange | allDEG2$log2FoldChange < (-foldChange))),]
 diff_signif2 = diff_signif2[order(diff_signif2$log2FoldChange),]
 save(diff_signif2, file = 'DESeq2_diff2.Rdata')
 
 
-#####degeR????#####
- DEead.table("combined_R../01.New_TCGA/NAseq_counts.txt",sep="\t",header=T,check.names=F) #?ĳ??Լ????ļ???
-rt=as.matrix(rt)
-rownames(rt)=rt[,1]
-exp=rt[,2:ncol(rt)]
+##### (3) degeR DE #####  <<<=============================================== HERE 
+rt=read.table("../01.New_TCGA/combined_RNAseq_counts.txt",sep="\t",header=T,check.names=F) 
+#rt=as.matrix(rt)  
+rt[1:2, 1:5]
+
+rownames(rt)=make.unique(rt[,1])
+
+
+exp=rt[,3:ncol(rt)] # changed from 2 
 dimnames=list(rownames(exp),colnames(exp))
 data=matrix(as.numeric(as.matrix(exp)),nrow=nrow(exp),dimnames=dimnames)
 data=avereps(data)
 data=data[rowMeans(data)>1,]
 data2=as.data.frame(data)
-exp_data_T = data2%>% dplyr::select(str_which(colnames(.), "-01A$")) # ƥ????????????ʾд??
+exp_data_T = data2%>% dplyr::select(str_which(colnames(.), "-01A$")) 
 nT = ncol(exp_data_T) 
 exp_data_N = data2%>% dplyr::select(ends_with("-11A"))
 nN = ncol(exp_data_N) 
@@ -171,21 +189,26 @@ data= cbind(exp_data_N, exp_data_T)
 group1=sapply(strsplit(colnames(data),"\\-"), "[", 4)
 group1=sapply(strsplit(group1,""), "[", 1)
 group1=gsub("2", "1", group1)
-conNum=length(group1[group1==1])       #????????Ʒ??
-treatNum=length(group1[group1==0])     #????????Ʒ??
-group=c(rep("normal",conNum),rep("tumor",treatNum)) #?????Լ??????ݸ????????????????????????
+conNum=length(group1[group1==1])       
+treatNum=length(group1[group1==0])     
+
+group=c(rep("normal",conNum),rep("tumor",treatNum)) 
+
 design <- model.matrix(~group)
+
 y <- DGEList(counts=data,group=group)#?????б?
 y <- calcNormFactors(y)#?????????ڱ?׼??????
 y <- estimateCommonDisp(y)#??????ͨ????ɢ
 y <- estimateTagwiseDisp(y)#??????????miRNA??Χ?ڵ???ɢ
 et <- exactTest(y,pair = c("normal","tumor"))#???о?ȷ??
-topTags(et)#??????????ǰ?Ĳ???miRNA??Ϣ
-ordered_tags <- topTags(et, n=100000)#????????Ϣ??????
-#?޳?FDRֵΪNA????
+
+topTags(et) 
+
+ordered_tags <- topTags(et, n=100000) 
+
 allDiff=ordered_tags$table
 allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
-#??ȡ?????????????Ĳ???????
+
 padj = 0.05
 foldChange= 1
 diff_signif = allDiff[(allDiff$FDR < padj & (allDiff$logFC>foldChange | allDiff$logFC<(-foldChange))),]
@@ -193,7 +216,7 @@ diff_signif = diff_signif[order(diff_signif$logFC),]
 save(diff_signif, file = 'edger_diff.Rdata')
 
 
-#####???ӻ?#####
+#####  ==== Difference among the 3 packages ====  #####
 edgeR = rownames(diff_signif)
 dim(diff_signif)
 limma = rownames(diff_signif1)
@@ -216,7 +239,7 @@ venn.diagram(
   cat.cex = 0.8,
   cat.fontface = "bold",
   margin = 0.05,
-  main = "???ְ??Ĳ????????????Ƚ?",
+  main = "The DE gene detected by Limma edgeR and DESeq2",
   main.cex = 1.2
 )
 
@@ -227,12 +250,15 @@ DESeq2=as.data.frame(DESeq2)
 sameSample=intersect(edgeR$edgeR, limma$limma)
 sameSample=as.data.frame(sameSample)
 sameSample=intersect(DESeq2$DESeq2,sameSample$sameSample)
-#???潻??????
+
 sameSample1=as.data.frame(sameSample)
 write.table(sameSample1, file="merge_genes.xls",sep="\t",quote=F)
-#??ȡcounts
+
 data1=exp[sameSample,,drop=F]
 write.table(data1, file="merge_counts.xls",sep="\t",quote=F)
-#??ȡFPKM
+
 data2=exp1[sameSample,,drop=F]
 write.table(data2, file="merge_FPKM.xls",sep="\t",quote=F)
+
+
+
