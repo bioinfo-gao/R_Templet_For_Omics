@@ -1,4 +1,4 @@
-
+setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/25.肿瘤突变负荷分析/1")
 #这个函数有两个参数，
 #@metadata是从TCGA数据下载的sample sheet
 #@path是保存maf文件的路径

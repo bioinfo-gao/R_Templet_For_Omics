@@ -1,27 +1,28 @@
-
+setwd("C:/Users/zhen-/Code/R_code/R_Omics_DS/28.æœºå™¨å­¦ä¹ -lassoç­›é€‰åŸºå› ")
 set.seed(123)
-library(glmnet)                   #ÒıÓÃ°ü
-inputFile="diffGeneExp.txt"       #ÊäÈëÎÄ¼ş
+library(glmnet)                   #???Ã°?
+inputFile="diffGeneExp.txt"       #?????Ä¼?
 
 
-#¶ÁÈ¡ÊäÈëÎÄ¼ş
 rt=read.table(inputFile, header=T, sep="\t", check.names=F, row.names=1)
 rt=t(rt)
 
-#¹¹½¨Ä£ĞÍ
+rt[1:2, 1:10]
 x=as.matrix(rt)
 y=gsub("(.*)\\-(.*)\\-(.*)\\-(.*)\\-(.*)", "\\5", row.names(rt))
 fit=glmnet(x, y, family = "binomial", alpha=1)
+
 pdf("lambda.pdf")
 plot(fit, xvar = "lambda", label = TRUE)
 dev.off()
 
 cvfit=cv.glmnet(x, y, family="binomial", alpha=1,type.measure='deviance',nfolds = 10)
+
 pdf(file="cvfit.pdf",width=6,height=5.5)
 plot(cvfit)
 dev.off()
 
-#Êä³öÉ¸Ñ¡µÄÌØÕ÷»ùÒò
+
 coef=coef(fit, s = cvfit$lambda.min)
 index=which(coef != 0)
 lassoGene=row.names(coef)[index]
@@ -33,3 +34,4 @@ lassoexp=rt1[lassoGene,,drop=F]
 lassoexp=as.data.frame(lassoexp)
 colnames(lassoexp)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\-\\4", colnames(lassoexp))
 write.table(lassoexp, file="LASSO.geneExp.txt", sep="\t", quote=F, row.names=T, col.names=T)
+

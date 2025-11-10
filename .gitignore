@@ -25,6 +25,7 @@ desktop.ini     # Windows 桌面配置文件
 # ------------------------------------
 .Rhistory       # R 历史命令记录
 .RData          # R 环境数据（通常不提交）
+.rds          # R 环境数据（通常不提交）
 .Ruserdata
 .Rprofile
 *.Rproj         # RStudio 项目文件（通常在项目级 .gitignore 中忽略）
