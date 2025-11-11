@@ -1,8 +1,9 @@
-
-
+# install.packages("randomForest")
 #引用包
 library(randomForest)
+
 set.seed(123456)
+setwd("C:/Users/zhen-/Code/R_code/R_Omics_DS/30.randomForest_gene_selection")
 
 inputFile="diffGeneExp.txt"       #输入文件
 

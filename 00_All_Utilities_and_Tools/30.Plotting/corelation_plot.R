@@ -1,4 +1,4 @@
-# devtools::install_github("Hy4m/linkET")
+#devtools::install_github("Hy4m/linkET")
 # install.packages("vegan")
 
 library(ggplot2)
@@ -10,25 +10,34 @@ library(RColorBrewer)#」色漸变自定义)
 #mtcars的相关(Pearson方法,默认)
 cor_mtcars <-  correlate(mtcars)
 
+# ?as_md_tbl # linkET
 #格式,后续给图
 as_md_tbl(cor_mtcars)
 data(varespec)
 data(varechem)
+head(varespec)
+head(varechem)
 
-mantel_results <- mantel_test(varespec, varechem,
-                              spec_select = list(Group1 = 1:10,#分倒为10人别,但但量试频
-                                             Group2 = 11:25,
-                                             Group3 = 26:35,
-                                             Group4 = 36:44)) %>%
-    mutate(rd = cut(r, breaks = c(-Inf, 0.3, 0.5, Inf), #测值:弱/中/强相关
-                    labels = c("< 0.3", "0.3 0.5",">= 0.5")),
-           pd = cut(p, breaks = c(-Inf, 0,001, 0.01, Inf),# 阀值:高度/中度/无显著 
-                    labels = c("< 0.001", "0.001 0.01", ">= 0.01")))
+                    #测值:弱/中/强相关 
+                    # 阀值:高度/中度/无显著 
+mantel_results <- mantel_test(varespec, 
+                              varechem,
+                              spec_select = list(Group1 =  1:10,
+                                                 Group2 = 11:25,
+                                                 Group3 = 26:35,
+                                                 Group4 = 36:44)) %>% 
+    mutate(rd = cut(r, breaks = c(-Inf,   0.3,  0.5, Inf), labels = c("< 0.3",     "0.3-0.5",  ">= 0.5")),
+           pd = cut(p, breaks = c(-Inf, 0.001, 0.01, Inf), labels = c("< 0.001", "0.001-0.01", ">= 0.01"))
+           )
+
+
+head(mantel_results)
+(mantel_results)
 
 #计算:使用bray 距离 for spec, euclidean for env
 
 #绘制热图+ Mante线条叠加
-qcorrplot(correlate (varechem), type="lower", diag = FALSE) +  # 下三角,无对角线 
+qcorrplot(correlate(varechem), type="lower", diag = FALSE) +  # 下三角,无对角线 
     geom_tile() + 
     geom_couple(aes(colour= pd, size = rd), 
                 data = mantel_results, 
@@ -41,7 +50,7 @@ qcorrplot(correlate (varechem), type="lower", diag = FALSE) +  # 下三角,无�
             fill = guide_colorbar(title="Pearson's r", order = 3))
 
 
-
+## <<<<<<<<<<<<====================== 注意：R　和P　事实上只有两个区间，所有只能作图如此
 
 
 
