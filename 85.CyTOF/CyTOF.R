@@ -74,5 +74,54 @@ marker_info <- data.frame(
 marker_info
 marker_info$channel_name
 
+suppressPackageStartupMessages(library(diffcyt))
+
+# Create design matrix
+# note: selecting columns containing group IDs and patient IDs (for an 
+# unpaired dataset, only group IDs would be included)
+design <- createDesignMatrix(
+    experiment_info, cols_design = c("group_id", "patient_id")
+)
+
+# Create contrast matrix
+contrast <- createContrast(c(0, 1, rep(0, 7)))
 
 
+
+# Test for differential abundance (DA) of clusters
+
+# note: using default method 'diffcyt-DA-edgeR' and default parameters
+# note: include random seed for reproducible clustering
+out_DA <- diffcyt(
+    d_input = d_flowSet, 
+    experiment_info = experiment_info, 
+    marker_info = marker_info, 
+    design = design, 
+    contrast = contrast, 
+    analysis_type = "DA", 
+    seed_clustering = 123
+)
+
+# check
+nrow(contrast) == ncol(design)
+data.frame(parameters = colnames(design), contrast)
+
+topTable(out_DA, format_vals = TRUE)
+
+
+
+# calculate number of significant detected DA clusters at 10% false discovery 
+# rate (FDR)
+threshold <- 0.1
+res_DA_all <- topTable(out_DA, all = TRUE)
+table(res_DA_all$p_adj <= threshold)
+
+# Visualizations using ‘CATALYST’ package
+
+
+# Heatmap for top detected DA clusters
+
+# note: use optional argument 'sample_order' to group samples by condition
+sample_order <- c(seq(2, 16, by = 2), seq(1, 16, by = 2))
+
+plotHeatmap(out_DA, analysis_type = "DA", sample_order = sample_order)
