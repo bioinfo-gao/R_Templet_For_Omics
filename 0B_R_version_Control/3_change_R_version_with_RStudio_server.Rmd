@@ -1,0 +1,36 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+免费版 RStudio Server 不支持在界面上切换 R 版本 !! ??
+
+RStudio Server 确实支持在界面上切换 R 版本，
+这对于多用户、多项目环境管理不同 R依赖至关重要；
+
+管理员需要通过配置服务器上的 R 版本（通常是安装多个 R 版本后，通过 RStudio Server Pro 的功能或通过系统环境路径），
+
+
+用户登录后在 {工具 (Tools)} > {全局选项 (Global Options)} > {R 版本 (R Version)} 中选择或指定使用哪个已安装的 R 版本来运行，就像桌面版一样，实现便捷的 R 环境管理。 在 RStudio Server 界面切换 R
+
+
+
+版本的基本步骤： 管理员预先安装：服务器管理员需要先在 RStudio Server 运行的操作系统上安装好多个不同版本的 R (e.g., R 4.2.x, R 4.3.x, R 4.4.x)。登录 RStudio Server：用户通过浏览器访问 RStudio Server。访问全局选项：点击菜单栏的 工具 (Tools) > 全局选项 (Global Options)。选择 R 版本：在弹出的窗口中，找到 R 版本 (R Version) 或类似选项（具体名称可能因版本略有不同）。
+
+
+指定版本：选择 使用指定的版本 (Choose a specific version of R)，然后从下拉菜单中选择一个已安装的 R 路径或版本号。确认：点击“确定”或“应用”后，RStudio 会使用选定的 R 版本重新启动。 
+
+
+
+针对 RStudio Server Pro (专业版/商业版)： RStudio Server Pro 提供更精细的版本管理功能，管理员可以集中配置和管理可供用户选择的 R 版本，甚至设置默认版本和隔离环境。 针对开源版 RStudio Server (Open Source)： 开源版主要依赖于服务器上已设置的系统路径 (\(PATH\))。管理员需要通过配置系统的环境变量，将用户默认能访问到的 R 版本设置好，用户通过界面切换通常是选择服务器上已检测到的可用版本。 总结：界面切换功能是有的，但前提是服务器管理员已妥善配置了多个 R 版本，用户才能在界面上看到并选择它们。 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
