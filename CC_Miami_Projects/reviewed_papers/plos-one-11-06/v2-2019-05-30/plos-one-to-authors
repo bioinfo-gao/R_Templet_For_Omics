@@ -1,0 +1,12 @@
+Dear Authors:
+
+Thank you for the updated manuscript. 
+I have run the  "predictor_model_building.ipynb" codes, your updated results fit my expectation in general.
+
+However, there is still some issue left (not essential), for example, I cannot find the file "mouse_mortality_data.csv" in your GitHub repository, this csv file is read in as shown your "PLOS_stats.md" file.
+
+May you please add such raw data in your GitHub?
+
+Thanks,
+
+Best,

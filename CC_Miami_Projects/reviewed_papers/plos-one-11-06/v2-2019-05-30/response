@@ -1,0 +1,37 @@
+We appreciate the continued feedback and effort from all reviewers to improve out manuscript. Our responses are below. 
+
+RESPONSE TO REVIEWER #1 
+
+Lines 150-175: Did the same person do all observations/scores? Please describe. 
+
+An additional line has been added pointing readers to our recent paper in the Journal of Visualized Experiments wherein we showed that there was minimal variation between scorers. 
+
+Line 166: “in duplicate” – is this scored by the same person twice or scored once by different observers? 
+
+This has been clarified by adding some more context – we worry that saying explicitly that this was performed by the same individual may mislead the reader into assuming the answer to your above question (that all scores were collected by the same person). The individual duplicate scores were always collected by the same individual. 
+
+Figure 2: It would be more appropriate to use standard deviation than standard error. Using Standard error likely looks a lot better but it is not the right statistic to use and gives the reader a false impression of the variability of the actual data. 
+
+We appreciate this feedback and it has made us re-evaluate our representation of error in Figure 2. Fig 2A is a plot of means; each point is average percent survival of mice which were assigned a score at 24 HPC. What we intend to convey by showing variance is not the scatter of measurements but rather the uncertainty around our mean estimate; thus, we feel that standard error is the more appropriate representation. We have clarified this is mean percent survival in the caption. For Figure 2B, we have decided that neither standard error nor standard deviation are meaningful in this context. As we describe in the paper, treating our health scores as numerical values is in itself not statistically sound. We assign no statistical significance in Fig 2B, rather we include it solely as an intuitive visual aid to see how the scores are changing over time. Given this, both standard deviation and standard error are essentially meaningless. Standard error has been removed from Fig 2B. 
+
+RESPONSE TO REVIEWER #2 
+
+In my previous review, I mentioned that the "concept of sepsis is introduced in the first section without any basic explanation or definition". Authors have added a sentence pointing to a couple of relevant references. Fair, but not yet enough. Given the type of journal, I still think that a more comprehensive definition (not necessarily a lengthy one) would be benefitial for the general readership. 
+
+The reviewer’s point is well taken – as we state in the manuscript, neonatal sepsis can be somewhat difficult to define. We’ve added an additional line briefly outlining some of the potential causes of neonatal sepsis to provide a bit more context; we acknowledge that the definition could be more comprehensive in nature, but given the complexity of the disease and the aims of this manuscript we feel that is better left for other papers. 
+
+The "Classifiers" section has certainly improved. I must insist, though, that only part of the classifiers considered are machine learning models. I do not like the idea of classifiers being assigned to the "ML category" by default. For instance, Logistic Regression is not ML; it is not a "learning algorithm" either. 
+
+Some of the language has been adjusted in the main text to reflect this feedback, i.e. our first category has been renamed ‘baseline learning algorithms / simple regression’. We have removed the classification of all approaches as ‘machine learning models’. 
+
+The feature selection methods are better described but I am not happy yet with the "Feature selection using a machine learning algorithm" section of the supplementary material. Authors state that "Every machine learning approach has an internal logic for ranking features". Well, that is a strong statement that, to the best of my knowledge, is hardly true. If authors think it is, this should be substantiated and referenced. 
+
+We have removed this sentence from this section. 
+
+RESPONSE TO REVIEWER #3 
+
+The only thing I want to mention is that they did't upload their statistical code to the Github, where I have found the python (ipython notebook) codes, which are used for machine leaning. That't quite good. 
+
+But I want to see the R codes used for statistics analysis (They mentioned that they used R: version 3.5.4). 
+
+The statistical code has been added to the Github repo as a markdown file with a readable html output. Thank you for mentioning the version here – this was in fact a typo as the original analyses were performed in R 3.4.4 (3.5.4 has not yet been released!). The statistics have been repeated in R version 3.5.2, which has been updated in the manuscript.

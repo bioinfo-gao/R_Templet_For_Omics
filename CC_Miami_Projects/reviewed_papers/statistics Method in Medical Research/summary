@@ -1,0 +1,177 @@
+
+=============================================================================
+In the front page: 
+
+Keywords: 
+liver, liver cancer, ... 
+
+[COMMENT by reviewer: there is no liver or liver cancer analysis is discussed 
+at all]
+
+Abstract:
+Two continous sentences are unnecessary repeats
+(1)
+Microarray expression data is analysed to predict differentially expressed gene,
+(2)
+The main reason for doing analysis on microarray data is to select and predict 
+the genes which shows different expression values under different experimental conditions.
+
+[COMMENT by reviewer: please delete or rewrite 1 of the 2 obvious repeated setences] 
+at all]
+
+
+===============================================================================
+In the manuscript
+
+page 1 of 15
+
+line 1: It provides a way in biotechnology, to analyse the behaviour of thousands 
+of gene on the basis of their expression profiles simultaneously by the use of 
+hybridization technique
+==> 
+The hybridization-based microarray technique provides a way to analyse the 
+expression behaviour of thousands of gene simultaneously.
+
+=============================================================================
+page 2 of 15
+
+line 1: 
+Past many years, ==> In the past two decades,
+
+line 2: 
+These all methods classified into two categories such as parametric methods and non parametric methods
+==>
+All these methods could be divided into two categories, parametric methods and non-parametric methods
+
+
+line 13:
+Moreover, in the above-mentioned papers, either they have been reviewed a 
+large number of statistical methods neglecting its individual special phenomenon
+or they covered few tests with focus on the specific phenomena for every 
+statistical test. But these both aspects are not covered under a single study. 
+Due to this reason, we tried to include both these aspects, in this paper. 
+
+[COMMENT by reviewer: ?? what's the specific phenomena ? ===============
+my understanding looks like "cell cycle changes in breast cancer"
+but from the context of this research is more like "microarray or chip" ]
+
+[COMMENT by reviewer: ?? what't the two aspects? ] ==================
+
+------------------------------------------------------
+line 15
+But these both aspects are not covered under a single study. 
+==>
+But both these aspects are not covered under a single study. 
+
+line 17:
+Here, we have shown an extensive study of numerous parametric and non-parametric
+statistical testing methodologies 
+==>
+Here, we peformed a study about the extensive comparison of numerous parametric 
+statistical testing methodologies, discussed non-parametric methods when necessary.
+
+(please refer your manuscript title)
+
+
+-----------------------------------
+line 20
+At last, a list of merits and demerits of each method are provided, with their 
+directions under which further investigation needed. Similar conclusion is drawn by 
+Kim et al. as Jeffery et al. like the sample size, data distribution, data variance, genes 
+number, number of samples etc. for each test has impact on which test performs better. 
+==>
+Our research demonstrated that many features of microarray data impact the 
+performance of each specific test, like sample size, data distribution, data 
+variance, genes number, number of samples etc. Similar conclusion is also drawn 
+by Kim et al. and Jeffery et al. As a consequence, we also present the list of 
+merits and demerits of each method together with the directions of further
+investigations are needed. 
+
+line 24
+In this paper, we compare various parametric methods,like T-statistics, 
+B-statistics and Bayes T-test or Bayesian methods, ANNOVA-1 AND Pearson 
+Correlation Test, three different methods come under categories other than 
+parametric and non parametric methods such as Fold change, RAM and Rank product.
+==>
+In this paper, we compare various parametric methods, like T-statistics, 
+B-statistics, Bayes T-test or Bayesian methods, ANNOVA-1, and Pearson 
+Correlation Test. In addtition, three different methods (Fold change, RAM and 
+Rank product) beyond the categories of parametric and non-parametric methods are
+discussed due to their pupularity and importance. 
+
+line 26
+In section 2, a review details are presented on each of these various statistical
+tests used for identifying genes which shows differential expressedpatterns 
+under different experimental conditions. 
+==>
+In section 2, the review details are presented on each of these statistical  ??????
+tests used for identifying the differential expressed genes under different 
+experimental conditions. 
+
+line 29:
+A comparative study with analysis of various statistical methods shown in Section
+3. Statistical methods are employed on data sets which are explained in Section 
+4, and their results with discussion on different statistical methods are explained 
+in Section 5. Finally, conclusion is presented.
+==>
+A comparative analysis of various statistical methods are shown in Section 3. 
+The employed statistical methods in this reserch are explained in Section 4, the
+results produced by these methods together with discussion are provided in 
+Section 5. Finally, conclusion is presented.
+
+
+line 40:
+different experimental conditions
+==>
+different experimental conditions or samples, such as diseased/treated group and
+the control group.
+
+============================================================================
+
+page 3
+
+line 1: 
+As stated in 18 and 19, the fold change for gene i can be defined as the difference between
+the means specified to two-different experimental condition or samples such as 
+diseased/treated group and the other is for the control group. This is work especially 
+when all values are transformed in 𝑙𝑜𝑔2scale.
+==>
+As stated in ref 18 and 19, the fold change for given gene i could also be defined
+as the difference between the two samples when the values are log-transformed.
+
+
+line 7:
+2.2 Parametric Tests 
+Classical test is the other popular name used for parametric tests. These 
+statistical tests belong to a branch of statistics which consider that sample 
+data follows a normal distribution and same variance within the groups. 
+
+@@@@
+[COMMENT by reviewer: there are basic mistakes about understanding parametric Tests
+Parametric test assumes that sample data comes from a population that follows 
+a probability distribution based on a fixed set of parameters, not necessary of 
+normal distribution] 
+
+
+line 16
+...are two independent data of gene expression under two different experimental 
+conditions 1 and 2, such as normal or diseased respectively for a specific gene i, 
+==>
+...are the average expression of gene i under two different experimental conditions 
+1 and 2, such as normal or diseased respectively.  
+
+
+page 5:
+================================
+line 1
+please check the basic difinition of t-test for equal variance and non-equal varianece
+
+
+line 7:
+@@@@
+[COMMENT by reviewer:check the formula]
+
+
+
+grammer checker:
+https://www.gingersoftware.com/

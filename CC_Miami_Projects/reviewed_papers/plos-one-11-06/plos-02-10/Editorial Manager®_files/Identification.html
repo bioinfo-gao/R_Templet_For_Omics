@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0057)https://www.editorialmanager.com/pone/Identification.aspx -->
+<html xmlns="http://www.w3.org/1999/xhtml" class=" webkit chrome win js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title></title>	
+	
+    
+<script src="./jquery.js.download" type="text/javascript"></script>
+<script src="./jquery-ui.js.download" type="text/javascript"></script>   
+
+
+  <!-- BUGFIX 28311 20150219 BBD --> 
+    <script type="text/javascript" src="./jquery-blockUI.js.download"></script>
+    <script type="text/javascript" src="./jquery-blockUI-ext.js.download"></script>
+    <link rel="stylesheet" type="text/css" href="./cssSiteStyle.aspx">
+	<style type="text/css">
+		
+		span.maintBanner
+		{
+			font-family: monospace;
+		}
+		/* Style override for block elements. Save on space. */
+		table, tr, td
+		{
+			margin: 0px 0px 0px 0px;
+			padding: 0px 0px 0px 0px;
+			vertical-align: top;
+		}
+        select
+		{
+			margin: 0px 0px 0px 0px;
+			padding-top: 0px;
+            padding-bottom: 0px;
+			vertical-align: top;
+		}
+		/* Style override for dropdown box font size */
+		select
+		{
+			font-size: 90%;
+		}
+	</style>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	    
+	    var openWindows = []; // Contains list of window objects that will be closed when user changes role.
+
+	    var currLang = "0";
+	    var isSysAdminOpen = false;
+	    
+	    function setCookie(c_name,value,expiredays)
+        {
+            var exdate=new Date();
+            exdate.setDate(exdate.getDate()+expiredays);
+            var domainRegex = /\.[a-zA-Z0-9]+\.[a-zA-Z]+/
+            var domainMatch = domainRegex.exec(window.location.hostname);
+            var domain = domainMatch[0];
+            document.cookie=c_name + "=" + escape(value) + ";expires=" + exdate.toUTCString() + ";domain=" + domain + ";path=/pone/";
+        }
+        
+        function onAjaxCallback(requestResponseText, context)
+        {
+
+        }
+        
+        function openSysAdmin(pg)
+        {
+            var page = (pg) ? pg: '';
+            openCenterWinPercentage('https://www.editorialmanager.com/pone/admin/Default.aspx?pg=' + page, 'admin', 1, 1, 0, 1, 1, 0, 750, 500, 0.75);
+            isSysAdminOpen = true;
+        }
+
+        function closeSysAdmin() {
+            for (var i = 0; i < openWindows.length; i++) {
+                if (openWindows[i]) {
+                    openWindows[i].close();
+                }
+            }
+            openWindows.length = 0;
+            if (isSysAdminOpen) {
+                window.open("", "admin").close();
+                isSysAdminOpen = false;
+            }
+        }
+
+        function UpdateLanguageCode(languageCode)
+        {
+            var url = "ajaxRequest.aspx";
+            var querystring = "scheme=19&languageCode=" + languageCode;
+
+            sendXmlHttpRequest(onAjaxCallback, url, querystring, false);
+        }
+        
+	    function ChangeLanguage(lang)
+        {
+            setCookie('CurrentLang', lang, 365);
+			UpdateLanguageCode(lang);
+            top.location.reload();
+        }
+
+	    $(document).ready(function() {
+	        //  TT#25764      20130724        VP
+	        //  Explicitely set the name of top window to empty string to clear any SessionThreadId from the previous Role 
+	        $('#RoleDropdown').change(function() {
+	            top.name = '';
+	        });
+	    });
+	    
+		
+		function $$disableNavigationControls()
+		{
+			$('#CrossPubLoginDropdown').attr('disabled', true);
+			$('#RoleDropdown').attr('disabled', true);
+            $.blockUI2();
+		}
+		
+		
+		function $$enableNavigationControls()
+		{
+			$('#CrossPubLoginDropdown').attr('disabled', false);
+			$('#RoleDropdown').attr('disabled', false);
+            $.unblockUI2();
+		}
+
+	//]]>
+
+	</script>
+</head>
+
+<body class="emLogo" background="./maintile.jpg" onload="" marginwidth="0" marginheight="0">
+
+
+
+<table id="Table1" class="navbarText" border="0" style="width:100%;">
+	<tbody><tr>
+		<td id="logoCell" valign="top" style="width:88px;"><a id="brandingLink" href="http://www.editorialmanager.com/" target="_blank"><img id="logoImage" title="Version 15.0, Data Server NSHP04" src="./logo.jpg" alt="Editorial Manager" style="border-width:0px;height:44px;width:88px;"></a></td><td id="maintMessageCell" style="vertical-align:middle;">&nbsp;
+			<a id="videoLibraryLink" title="View Video Tutorials" href="https://www.ariessys.com/views-and-press/resources/video-library/" target="_blank"><img id="videoLibraryImage" src="./video.png" align="right" style="border-width:0px;height:30px;width:30px;"></a></td>
+	</tr><tr>
+		<td colspan="2"><form name="Form1" method="post" action="https://www.editorialmanager.com/pone/Identification.aspx" id="Form1">
+		<div>
+		<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+		<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+		<input type="hidden" name="__LASTFOCUS" id="__LASTFOCUS" value="">
+		<input type="hidden" name="__VIEWSTATEFIELDCOUNT" id="__VIEWSTATEFIELDCOUNT" value="2">
+		<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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">
+		<input type="hidden" name="__VIEWSTATE1" id="__VIEWSTATE1" value="knWCc7fvmZzB9xSmNy1yjlhlliy92cgDm95wxQ2ptSvXzTCZISrO7mff+t2v/C2/Ln2P6e0HHkCL4jOqbOG2jOPfpHeLfrMU+mhIMpWgX+/xv4xzq94PLm39yMatN/dqwHwjwj8tMPA9nGFbW7VbaDT/DLLAFuGkpAj921h8/FKLZD7ilL1nGx9TKrS4gZrqOphkl8k0ZKHRt5AXTVb5nm32aHMyHY7/gLcclXN9Glt9VpDmAvwroiZNZWCKOnvr5HWYr1pNQbTCvEl+kzCaQZyuNh3KlB/r+4kAtOywSdLxg1x3Eo5BQ0Y0H3iH0IXygmPQqjYvAB4NXi08Q2nCcWQC8uzkNrUH0wye6kzv5zeLYdEyUkCE6Md2mv8Alxm9D5I/kInolQaTBhbWQpzrltsFErT/3CCAtnzFx3VLx1bSFObiG1qCbIiDhbHp7CsbG81T6aMWR/8uivAER7YZpvdmYWarehpN/X8ts+EYuait6QU0SPXrbXoO7dyeCMgWNoIa2wCZm/elfyHyYwOQmJBVdD5RvCRqJHFHoXH4HtfsTCdeb+WjdLV+nkq3/sf0ct97G3wIV8fbRKH0hu5knv7I1DEi3nJN9mfOuHQc2XHV3bQbXia3zlvNoop0yVo5Oyy4YacDRSDE9Mcaqz51srAmnhTw8FQRrvXIaTvjeyLB6IEtl3uiwjxzm6fTktKRfmB9PL9Ap6aVQI/Xh68qJshVZrXHBHuBULRDaGPQd6kzVd5uyjo1uSKhDLvQuPAevxfjB2hiZCS1QsY4i/PU85O7XdejxTKjBgFvA6GCyFY/bADE2jEn7/ItGiidXg+9t4r9g3dm5nsyRotNoXEWNdnTd3qiTd7iOyycWy+908XUgUT9YzYJdXvJEEefukB80jKDswsu9hheFYQ4RNaQW11bhJRRt647ypo7KE4AMQxSkPIN0A4N2lvUSJMCn+SRe862LM+mf4sNBjXmYvQVZHEJW15vl30wwk2JvGPZ9DWYuqKMz4AIdljkx1A35gVnWTpKtlhSB7XIe7zZERKgw7o5YFnG/KROLFAAwC5Ve6Hzysex1sKxSeUpbdEujM0bjZPblp5ylhxgvacViQjCAfnZimu8JhtGiCDC9PL4EoOOdblHdYeLI5NJEM1msVlvBcwqaHRTwznI69tQgWgI7MMRcSfkbIcxwTkvPWCRJE7JOe3gMqqkwQIXF95WEeV9rJel6gtr2BVdIcXRoCAKldyMDTS//QVx/TuBjcWPenzsmkwl6aNn8+Q2JCP94JEzCfsiObxAdk828+Zud7+uIzXQrmYyZ90qpztC0cnelH5XM+8fSOQ2/8FGhSfsGLx9aszrCVM/m1SAvruXJWW7/iu+eWcWkczm5Mz9yQ9bI33H4XUz+Q7gQ92QQvf0PGuhR81uOlAWR3ZHE1aBlHBQcSRlkbd28qBvrNmjSGiksMHmhdHfM9ctEnog0n0avry0ItzpvZS9VqWcFBimAbxrbj5nvOegHZPIEcoHWCo9SCkMITRvrrl3Mnv6ehFCQpVf0HmABMmD/x0YIOD+diTLQwJYrpX4U7Adbpb1pngQOjH5NPfOT3lI1KyuELy/WtyWVXb10mxXd7CHafi4n003xADMyzgAgoeYk+r7hcEqXwMfreE+1vHAanH+njLyMqBxN14XNFPIho/0EBACfP/RTrhrkuSIIBfHDw2Rh5z6Mz0ixn/7yjKqiCIt2l1Hfq98Kj12zB7QPVWXWfuGXcXphEXFRa0=">
+		</div>
+		
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['Form1'];
+		function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+		//]]>
+</script>
+
+
+		
+<script src="./WebResource(1).axd" type="text/javascript"></script>
+<script src="./WebResource(2).axd" type="text/javascript"></script>
+<script src="./WebResource(3).axd" type="text/javascript"></script>
+		<div>
+
+			<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="7E96BDE8">
+			<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="mvem2iuWCDB2QSAnqzqpda8hN5dBRfMguWQl0AbT297XG081mqEmLR+g+pFCqgfNkngYQQP6x/Mi/3efbTpfpoVt84VdZFOozeXGnjxcGSfPy/80C/WsNRIUkW6IJ7jknqaK5MQS3qxygwqNBShLRp7dFDvF7ZA7ADFF3F8qDbK0VPRPZkM9r/RRXwQEYWuiYlrm/Z8ZvW24Nd7srJUIDArhpTQJ6xk2Cfrytf+B31sfrl58k3cpPEYCoPKZErjI9jNeJOmf+caJ8DIE9CRR8OlJ2Lv3mySdSkGMgRy5tO9JM1rpFnOwIcK/nKEZvbBp458uX+D9R3YWiVybIY974eQPibvMmbRdk5W2xJZiQLTVC9y/">
+		</div>
+
+				
+				<table id="Table2" cellspacing="0" border="0" style="border-collapse:collapse;">
+			<tbody><tr id="RoleRowLoggedIn">
+				<td style="white-space:nowrap;"><span id="RoleLabel">Role: </span></td><td id="RoleCell"><select name="RoleDropdown" onchange="closeSysAdmin();setTimeout(&#39;__doPostBack(\&#39;RoleDropdown\&#39;,\&#39;\&#39;)&#39;, 0)" id="RoleDropdown">
+					<option value="author">Author</option>
+					<option selected="selected" value="reviewer">Reviewer</option>
+
+				</select></td><td id="UsernameCell" style="white-space:nowrap;"><span id="UsernameLabel"> Username: ZhenGao-757</span></td>
+			</tr>
+		</tbody></table>
+				
+				<div>
+				<input type="hidden" name="roleString_author" id="roleString_author" value="Author">
+				<input type="hidden" name="menu_author" id="menu_author" value="AuthorMainMenu.aspx">
+				<input type="hidden" name="roleString_reviewer" id="roleString_reviewer" value="Reviewer">
+				<input type="hidden" name="menu_reviewer" id="menu_reviewer" value="reviewers.asp">
+				<input type="hidden" name="roleString_editor" id="roleString_editor">
+				<input type="hidden" name="menu_editor" id="menu_editor">
+				<input type="hidden" name="roleString_publisher" id="roleString_publisher">
+				<input type="hidden" name="menu_publisher" id="menu_publisher">
+				
+				<input type="hidden" name="userRoleCaption" id="userRoleCaption">
+				<input type="hidden" name="userRolePostScript" id="userRolePostScript">
+				
+				<input type="hidden" name="admin" value="false">
+				
+				<input type="hidden" name="roleChanged" value="false">
+				</div>
+			
+		
+<script type="text/javascript">
+//<![CDATA[
+window.setTimeout('window.location.reload()', 3600000);//]]>
+</script>
+</form></td>
+	</tr>
+</tbody></table>
+
+
+
+</body></html>

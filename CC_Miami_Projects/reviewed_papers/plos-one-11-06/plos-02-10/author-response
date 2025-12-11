@@ -1,0 +1,235 @@
+Author's Response To Reviewer Comments
+RESPONSE TO REVIEWER #1 
+
+Thank you for your detailed feedback and critique of this manuscript. We respond to each point raised below. 
+
+•	The manuscript lacks sufficient clarity to highlight the work done or the significance of it. The methods need significant work to describe what exactly was done. 
+
+We have expanded the methods section to include a more detailed account of the development of the scoring system in order to highlight how this came about and have extensively reworked the section describing classifier construction. In brief, we developed a scoring system and showed that recording these data can enable investigators to predict outcome of neonatal mice. This opens doors for the investigation of neonatal infectious disease, which is limited by an inability to collect biological samples from neonatal mice without sacrifice. We accordingly have expanded the discussion to include greater emphasis highlighting the significance of the work. 
+
+• Line 80: remove the duplicated word, “markers” 
+• Line 87: I think it is incorrect or overstating to state that you validated your health scoring system… 
+• Line 102-103: What was the volume of the IP injection into the pups? 
+• Line 103-104: You indicate that the litters were monitored for “morbidity (i.e. humane endpoint)” but do not describe what signs of sickness you are looking for 
+
+Typos in the manuscript have been corrected. The word ‘validated’ has been changed to ‘correlated’ to correctly reflect the data. Volume injected (~100 µL, some adjustment for weight) has been added to the methods section. The specific criteria for morbidity / humane endpoint are one of the focal points for the paper – we principally looked at righting reflex and mobility or lethargy. As this is described in much greater detail in the main text. 
+
+•	What is meant by the statement “all efforts were taken to minimize animal suffering”? 
+
+As there is no standard humane endpoint or measure of sickness for neonatal mice, we feel this manuscript itself represents the claim that ‘all efforts were taken to minimize animal suffering’. We strived to identify the earliest possible point where mice that were destined to not be able to recover from disease could be identified to reduce animal suffering, and for biological importance to identify what makes those mice different from mice that go on to survive but still look sick at the same point. 
+
+•	Line 116-117: please be more explicit in your description of the animals included in the analysis – were they all receiving cecal slurry? Did any receive treatment? All part of an LD50 study? All wildtype B6 mice? Did they all go to the humane endpoint or were some euthanized at 24 hours? 
+•	Line 120: You indicate that animals were monitored 2-3 times daily throughout the experimental endpoint. What was the specific interval? Did the interval depend on the time after CS injection? What criteria determined when the animals were monitored? What time were the observations at? Light cycle or dark cycle or both? 
+
+We have edited the main text to address these questions and clarify these experiments. In survival studies mice were let to go to humane endpoint or recovery, whereas in experiments with sample collection mice were sacrificed at 24 hours. Specific intervals have been added to the methods as has the time of injection and the clarification that this occurred in both light and dark cycles. 
+
+•	Please include a description of the husbandry of these animals. What sort of housing was used? What cage density? What enrichment was offered? What diet and water source were the dams offered? What was the light cycle? What was the temperature and humidity? 
+•	Please describe how pups were identified and scored individually? How was this information tracked? Did you use scoring sheets for each animal? 
+•	Please describe weight collection method since this data is later used as a metric for endpoint criteria evaluation 
+
+Details and clarifications addressing these questions have been added to the methods section of the text. 
+
+•	Please fully describe the statistics that were used to evaluate the data? What test? Was data tested for normality? What program was used to evaluate the data? 
+
+An additional section titled ‘statistics’ has been added to the methods section in order to address these points. Some of the statistical tests used throughout the paper have been modified to better suit the data – the results have been altered accordingly. 
+
+•	Figure 1: I don’t understand what is plotted in A. What does the total bar at each time point represent? Why does it increase and decrease - I would expect that it would steadily decrease over time. 
+
+The total bar at each point represents the total number of mice monitored within that given bin. It does generally decrease over time, fluctuations are due to differences in monitoring time points (i.e. not many mice are monitored at 27 hours because they were just monitored at 24 hours) 
+
+•	Figure 1C: were these animals all challenged with the same dose of bacteria? 
+
+All animals were challenged at a cecal slurry concentration corresponding to an LD50 – this varied slightly between different preparations of cecal slurry (from 0.8 mg-1.1 mg). The caption has been updated to better reflect this information. 
+
+•	Table 1: How did you determine a 4 second cutoff time for the righting reflex? This seems like a very long time to wait for the animal to do this? 
+
+The 4 second cutoff was determined by observing the natural righting reflex of non-challenged pups, and picked as a time when over 95% of mice were able to right on at least one side after being placed on their back. Any shorter and healthy mice would display fail to right reflexes, while longer could lead to exhaustion of the mice which could potentially affect the response to disease. 
+
+•	Table 1: While it is easy to understand a present or absent righting reflex, I do not follow the logic in the organization of the Mobile/Lethargic/Nonmobile associated with the scoring? Can you please explain this in the methods section – how you devised the complete scoring system. 
+
+It is difficult to give a detailed account of the development of the scoring system, as this arose from a large number of qualitative observations over the course of multiple years of running neonatal mouse experiments. The need for consistency and the ability to predict outcome drove us to turn these qualitative observations into a quantitative measurement, hence this scoring system has emerged. We have attempted to provide some background and context to address this in the methods section, and have expanded the previous discussion to include greater information about this mobility metric. 
+
+•	Figure 2A: What does the shaded area represent? 
+
+The shaded area represents standard error – this has been added to the figure caption. 
+
+•	Figure 2B: What is plotted in this graph and what does the shaded area represent? Are these averages or modes at each time point? A fitted model? You stated that the scores were discrete categorical data but you have a smoothed continuous curve – please explain. Can you show the actual time points for which you collected this data? 
+
+The lines represent loess fits applied to the scores treated numerically and the shaded area represents standard error. We did it was inappropriate to treat the scores as numerical variables for the purposes of statistical analysis as it is impossible to claim that the difference between each category is precisely the same arbitrary health unit. However, we felt that treating the scores as numerical entities for the sole purpose of visualizing the change in score over time was acceptable as there is no statistical test or weight being assigned to the results. We attempted to emphasize this by specifying it was a ‘visual representation’ – the basis of our claim that ‘score changes over time’ can be seen in figure S1 where the scores were not treated numerically. 
+
+•	Lines 187-193: It may be useful to use a ROC curve and Youden’s index to evaluate the combination of parameters you use as a cutoff – this will optimize the sensitivity and specificity of the combination of score and time point for predicting death and thus an ideal endpoint for this model. 
+
+We appreciate this suggestion for evaluation of the timepoint for predicting death, and we agree that there could be some improvement selecting the best time to predict death. However, we are somewhat limited in this manuscript by the data we have available – as most of this data was accumulated over time naturally as a result of other experiments in our lab, we were not increasing our monitoring time points to seek out the data to optimize this. So, we ultimately were presented with the choice of 12, 18, or 24 hours and here we demonstrated that, of these choices, 24 hours was the best candidate. This has been added to the discussion as a limitation of the study. 
+
+•	Figure S1: Is this for all mice at 18 and 24 hours? 
+
+This is for all mice with known outcome (i.e. were not sacrificed) at 18 and 24 hours. Clarified in figure caption. 
+
+•	Line 200-201: How many mice were used? Where these mice also scored using the criteria in Table 1? 
+
+125 mice were used, this information was added to the text. These mice were scored using the same criteria. 
+
+•	Line 204: please clarify if the bacterial load is only assessed at 24 HPC. 
+
+Clarified in text 
+
+•	Line 209-210: What data supports this statement? What health score was associated with survival? How was it correlated to bacterial load? 
+
+This text is supported by all of the data presented in previous section – Figure 2A shows a clear relationship between score at 24 HPC and percent survival and Figure 3 shows a direct correlation between increasing score and decreasing bacterial load (measured at 24 HPC) at both 18 and 24 HPC. We feel this data is clearly presented in the section. 
+
+•	Line 222-223: You indicate that you use righting reflex and mobility to make a single score but then use them separately here and weight with the model. How was this information handled? Why did you separate them rather than keep them together? 
+
+Our logic in separating the score into individual components was that we wanted as close to a truly unsupervised classification process as possible – by using our created scores as inputs we worried we would limit the discriminatory capacity of the classifier. The scores were deconstructed into their smallest possible components. Mice were placed on both sides and righting reflex and mobility was collected twice so there were a total of four measurements comprising each score. Our goal was to discriminate survivors and non-survivors as effectively as possible so it logically follows to include as much information as is available. The utility of the scores external to the classifier lies more in the simplicity of collection and interpretation and thus does not make sense to separate into components. 
+
+Discussion 
+•	Can you please discuss why you came up with score criteria but then analyzed righting reflex and body weight separately. 
+
+A brief summary of the previous response has been added to the discussion section. 
+
+•	What would you specifically recommend to use as a humane endpoint criteria with this data? 
+
+As we mention in the penultimate paragraph of the discussion, we suggest that mice which fail to right and are lethargic should qualify as humane endpoint in future studies. 
+
+RESPONSE TO REVIEWER #2 
+
+We appreciate your response and critique, especially of our classification section. We have heavily modified the section to address your concerns – each point is addressed below. 
+
+The limitations in our knowledge about the way in which newborns’ immune systems handle infectious threats such as those that might lead to sepsis is correctly identified and the use of mouse models seems, in principle, like an adequate route towards increasing such knowledge. 
+Authors define a standardized metric to quantify neonatal mouse health in its relationship to outcome (adult mouse metrics are available but not readily applicable to newborn animals. The reported interest of this metric is that it is shown to be highly predictive of survival (understood as a classification problem). 
+
+The paper is well written and reasonably well structured, and the reported research falls adequately within the scope of the PLoS ONE journal. 
+
+The concept of sepsis is introduced in the first section without any basic explanation or definition. Given the generalist nature of the journal, such explanation/definition would be welcome. 
+
+A sentence overviewing the concept of sepsis has been added to the introduction. 
+
+The description of the data analysis methods (section "Classifiers" and supplementary material) is very insufficient. Authors state that they "built a machine learning model for a binary classification problem", but the fact is that only part of their classifiers could be considered to be machine learning models. More importantly, there seems to be no clear justification or rationale behind the specific choice of algorithms. Such justification should be made explicit in the text. 
+
+We have heavily modified the classifier section and re-wrote the supplementary material entirely to try to improve clarity and provide more background that may be required for this manuscript to flow naturally. The new supplementary section is primarily focused on the differences between the approaches and the logic behind our choices. Additionally, we have created a public GitHub repo wherein the code can be reviewed which should clarify any specific questions (S1 URL). 
+
+All these algorithms depend on a number of parameters that must be tuned to create the classifier model. No reference is made to how the optimal values for these parameters were selected. Without such information, the experimental results have no guarantee of replicability. Authors should also clarify how they tackled the potential problem of overfitting in their models. The evaluation metrics (accuracy and AUC), even if standard, should be formally described and justified. The feature selection methods are barely described (for instance, what is KNN and SV classification feature selection?) 
+
+We have added an additional table in the supplementary information which outlines the user-defined parameters which needed to be defined in order for the algorithms to progress. We principally used the GridSearch technique, which we have now defined and included in the manuscript. Further, we have added a discussion of the cost / benefits of each algorithm and provided some rationale behind the choices made. Additionally, we have uploaded our Python workbook which details the whole code and should address any concerns about repeatability. We have also now clarified accuracy and AUC in the main text. 
+
+In the discussion, I miss a couple of things: 1) comment on the relevance of feature selection as part of the classification analysis and as a way to make the interpretation of the results more accessible to medical experts; and 2) some comments on how this preliminary research on mouse models could eventually lead towards an approach that might be useful in human neonatal research. 
+
+The relevance of feature selection has been added to both the results and the discussion, emphasizing the significance of righting reflex and its quality as an easy to use, predictive metric. We have also added some additional lines in the discussion highlighting the relevance to human neonatal infectious disease. 
+
+Figures: 
+All figures seem to be of rather low resolution (don't know about the originals, but they look so in the pdf file) 
+
+Resolution has been fixed on figures and some have been removed. 
+
+Confusion matrices in Figs.4 and S3 do not make much sense as figures. They would be better reported as tables. 
+
+The confusion matrices have been replaced with tables. 
+
+
+Several figures in the supplementary material come with no descriptive text. 
+I do not quite understand what the horizontal axis represents in Fig.S2 
+
+We have updated some figures which erroneously did not include axes labels. Per the PLoS ONE style requirements, supplementary figures are not required to include descriptive text – those which do not have this text are referenced in the supplementary materials and are meant to be understood in the context of that document. 
+
+Data are adequately made publicly available from the Open Science Framework database. 
+
+RESPONSE TO REVIEWER #3 
+
+Thank you for your detailed review of our manuscript – your feedback has been very helpful in guiding us to clarify some confusing points. We address each of your concerns below and have added additional supplementary information. 
+
+Neonatal mouse could be utilized as a model and provide valuable data for the research of sepsis in newborn babies. Due to the significant hardness in collecting biological samples in neonatal mouse without sacrificing the animals, new methods based on easy-obtained quantitative and qualitative metrics beyond the regular adult predictors are essential and should be established. 
+
+In this manuscript, the authors successfully presented some critical new metrics and constructed a scoring system to indicate the health and bacterial load of neonatal mouse. In addition they constructed a classifier to predict the mortality and validated the robustness.
+
+Generally this research is quite innovative and produced good and meaningful results. 
+
+But there are some questions/problems to be answer/clarify and some flaws to be corrected: 
+
+1) Authors should demonstrate the bacterial load but not the IP injection surgical damages and related stress is the main reason of changes in righting reflex. 
+
+We have inserted an additional supplementary figure showing that sham challenges (injection of either dPBS or dextrose 5% water) did not cause any mortality (A) and had significantly higher scores than mice which received a cecal slurry challenge (B). 
+
+
+2) Prediction accuracy alone is NOT a good indicator of prediction performance as it's hardly to be extended to the usually highly unbalanced real world data.. Authors could replace it with (macro or micro) F1 score, because it much more robust. 
+
+We entirely agree with the reviewer’s sentiment that accuracy is a poor metric of performance in real world (unbalanced) data, but we believe it is appropriate in this context where we do in fact have a highly balanced set (112 survivors and 110 non-survivors). Still we did look at F1 scores and found virtually no difference compared to accuracy – these can be seen in the now posted code associated with classifier construction. Again, we entirely agree with the reviewer, but our inclination is to keep accuracy as the presented metric in the paper for simplicity and readability, as the intended audience is experimental scientists rather than experts in machine learning. This classifier is not intended to extend to real-world data - its utility lies in the ability to discriminate survival in a controlled laboratory setting where it is unlikely to encounter highly imbalanced groups. 
+
+3) Line 173: 
+Authors should show all data about the timing of mice death, no matter what's the prediction results. If the death was long after the scoring, it’s could caused by factors other than the infections and it hard to validate effectiveness of scoring/prediction. 
+The autopsy data could validate the method if they are available. 
+
+We agree with the reviewer that all deaths are important regardless of the timing, and for all statistical analyses (and classification) we indeed included all deaths. Specifically for Figure 2B, the loess fit shown no longer makes sense as the data gets extremely sparse after 48 hours. The monitoring time points become less frequent for the survivors (as they are already in recovery) and so the majority of the recorded scores are mice which continue on to death, as these mice are still being monitored frequently. All mice have reached recovery or death by 96 HPC so it seems unlikely to us that these few deaths after 48 HPC are unrelated to the infection. Unfortunately the autopsy data are no longer available for this dataset. 
+
+4) Line 230: 
+Authors should clearly demonstrate what's the initial features and the rational of the initial features composition. 
+
+An overview of the feature inclusion has been added to the methods section – the rationale was to include all information available that was present in this data set and then employ a rigorous, data-driven method of selecting the most relevant features. This data set is comprised of mice from many experiments over a multi-year span which happened to be treated the same (i.e. received a cecal slurry challenge at the correct dose and were not exposed to any sort of treatment or intervention). This paper and classifier represents us working with the data which we had been collecting already rather than an experiment-driven approach to defining neonatal mouse health. We realized these data we had been collecting were very strong in of themselves and so set out to create a scoring system which can be adopted by other labs working with neonatal mice. So in summary, the rationale behind the initial feature selection is that these were things we had qualitatively observed to be relevant to survival and therefore were worth collecting. We have attempted to make this more clear in the manuscript. 
+
+5) Line 233: 
+Why Pearson correlation coefficients were used to select features and what's the threshold ? why choose the threshold? 
+
+Information about the threshold (0.2) has been added to the methods. Similarly to hyperparameters optimization, when we do correlation and decide to select feature we need to have a method that “tells us” or suggest us the threshold to use to have, along with the hyper parameters optimized, the best combination for the best model accuracy, thus the choice of the best cutoff to use to pick our features is optimized and not based on an arbitrary cutoff choice. 
+
+
+6) Line 237: 
+Why only 74 cases to be used to classify as survivor/non-survivor? In fact the number changed everywhere (in line 117, in "CFU_with_predicted_outcome.csv", in "Mortality_data_training_and_test.csv", and in Fig 1B -- total mice is 138+128 = 266 ) 
+
+We have attempted to clarify the confusion regarding the mouse numbers by overviewing the numbers more explicitly in the methods section. Out of 266 mice, 21 were saved for an external validation and 23 had missing values that made them ineligible to predict outcome. These mice were still able to be used in the direct comparisons of score / righting reflex and mortality. 222 mice were used to train and test the classifier, which meant these were further subset into to categories: 66% were for training (148) and 33% (74) were for testing. This is where the 74 comes from. We have also added another supplementary document outlining the datasets and the number of mice within each in order to help alleviation any potential confusion. 
+
+
+7) Line 247: 
+What's biometric data? Authors should clarify. 
+
+Biometric data meaning weight and sex but principally weight – we agree this is a confusing term and have adjusted the figure title accordingly. 
+
+8) Line 257 and line 275: 
+The surgical damage and operation stress could cause morbidity, authors should exclude the effects of surgical damage and operation stress or at least clearly discuss it in detail. 
+
+We have addressed this with an additional supplementary figure (discussed in answer to question 1). 
+
+9) Line 392: 
+Where is the details/setting/parameters about the Method: GridSearch and combination of GridSearch with others methods? 
+
+We have now uploaded the code used to construct this classifier and have directed readers there if they would like to see the specific parameterization used. We agree that these parameters are critical for repeatability, but we feel it is beyond the scope of this paper to discuss the settings of GridSearch in detail given the intended audience of experimental scientists.	
+
+10) In the data of "CFU_with_predicted_outcome.csv" 
+10.1) Why there are only 164 mice info? It's different from 404 mice authors claimed in line 117 
+10.2) Why are there many NA/missing value in the column "Probability.Live"? 
+10.3) What's the method to produce the data in the column "Probability.Live"? 
+10.4) Irrelevant data (columns) should not be included 
+
+Thank you for your feedback on these data. This dataset represents a subset of mice which were sacrificed at 24 hours and the bacterial load collected. The missing values in probability live were mice that were erroneously included in this data set and were not represented in the paper – these mice have been removed and irrelevant columns have been cleaned. To alleviate potential confusion, we have added an additional supplementary document clarifying the contents of each file which has been uploaded. We have also added a glossary tab to each data frame attached to the manuscript, per your later suggestion. 
+
+11) In the Fig. S4: 
+11.1) Why "v18.hour.post.challenge" "v24.hour.post.challenge" used to check correlation? It looks pointless 
+11.2) What's the meaning of "chal.status_non_challenged" ? 
+In fact, every headline column/item should be explained or have glossary of the definition, 
+11.3) The rationale these items are included should be explained 
+
+These columns show the exact time post-challenge that mice were monitored. All features were checked for correlation to ensure an unbiased assessment – we agree it was highly unlikely that the very slight differences in time post challenge would make a difference, but it is important to not make assumptions when it can be easily confirmed by the machine. This indicated whether mouse received a cecal slurry or sham challenge – two mice in the set were unchallenged and not excluded. A glossary has been added to an additional tab in each data set to clarify the meaning of column names and values within. 
+
+12) In the data "Mortality_data_training_and_test.csv" 
+12.1) Why there are 299 mouse info? It's different from 404 mice author claimed in line 117 
+12.2) how to treat or imputed the missing data in the above tables? 
+12.3) Irrelevant data (columns) should not be included. 
+
+This data set represents all of the mice for which mortality data was collected – again, some mice were incidentally included which had been filtered out of the final paper due to missing data (hence the prevalence of missing data here). These have been removed and two additional subsets have been added for clarity. Irrelevant columns were again removed. 
+
+13) Table S3: 
+Where is the label of Y-axis in Fig S3 B? 
+14) Table S5: 
+Where is the label of Y-axis? 
+
+The labels have been added to the axes, thank you. 
+
+15) Where is the information about the programming language/ softwares/ libraries ? 
+16) Where is the programming code? 
+
+In response to both questions 15 and 16 - the programming code has been uploaded to a public github repository and a link has been provided in the supplementary information. For ease of access it is also linked here: 
+
+https://github.com/radaniba/Sepsis_Project 
+
+1) Line 80, two repeated "markers" 
+2) Line 139, 140, 145 -- Fig 1A, Fig 1b, Fig 1c; 
+Either up case or lower case, but keep consistent. 
+
+Thank you for identifying these errors, they have been corrected in the manuscript.
