@@ -1,0 +1,1497 @@
+---
+    title: "Differential analysis template (01/03/2019)"
+author: "Zhen Gao"
+date: "Jan 03, 2019"
+output: 
+    html_document: 
+    fig_height: 10
+fig_width: 10
+---
+    #### ZG updated based on 10082018 version
+    
+    ```{r, echo=FALSE}
+setwd("~/DATA_ZG/tMalek3")
+Malek_dir = "/home/zxg161/DATA_ZG/tMalek3"
+Date = Sys.Date()
+Project = paste0("Malek_", Date)
+count_dir = file.path(Malek_dir, "Count-Total")
+Out_dir = paste0(Malek_dir, "/Result/", Project, "/")
+dir.create(paste0(Malek_dir, "/Result/"), showWarnings = F)
+dir.create(Out_dir, showWarnings = F)
+GSEA_folder = file.path(Malek_dir, "Result/GSEA/")
+dir.create(GSEA_folder, showWarnings = F)
+Out_dir
+```
+
+#### Directory of sample information
+
+```{r}
+# data file
+#cat(paste(dir(count_dir)[!grepl(".summary",dir(count_dir))], collapse="\n"))
+SampleInfo_dir = Malek_dir
+```
+
+##### Packages 
+
+```{r, message=FALSE, eval=TRUE}
+# library("BiocInstaller")  # or source("https://bioconductor.org/biocLite.R") #'BiocInstaller' and 'biocLite()' are deprecated, use the 'BiocManager' CRAN package instead.
+# library("BiocManager")         #### important changes
+# BiocManager::install("edgeR")  #### important changes
+# BiocManager::install("DESeq2") 
+# install.packages("devtools")
+# install.packages("pheatmap")
+# install.packages("plot3D")
+# install.packages("edgeR")
+# install.packages("BiocManager")
+# install.packages("DESeq2")
+require("devtools")
+require("devtools")
+require("ggplot2")
+require("pheatmap")
+require("limma")
+require(ggplot2)
+require(grid)
+require(plot3D)
+require(multtest)
+require(RColorBrewer)
+require(survival)
+require(limma)
+require(edgeR)
+require(plyr)
+require(scales)
+options(scipen=500)
+require(DESeq2)
+```
+
+### Load count files and normalized data
+#### Obtaining the sample information and cleaning and normalized raw data
+
+```{r, eval=TRUE}
+#---- Get count table----#
+# Option 1: merge count
+# merge raw count table
+merge_featureCount = function(DATA_dir, file_pattern, subtract_pattern = NULL){
+    File_name = dir(DATA_dir)
+    File_name = grep(file_pattern, File_name, value=T)
+    if(!is.null(subtract_pattern)){
+        File_name = File_name[!grepl(subtract_pattern, File_name)]
+    }
+    for(i in 1:length(File_name)){
+        #i=100
+        Temp_table = read.table(paste0(DATA_dir,"/",File_name[i]), header=T)
+        Temp_table = Temp_table[,c(1,7)]                                          #ZG, no $count in .count file
+        if(i == 1){
+            Table_merged = Temp_table
+        }else{
+            Table_merged = merge(Table_merged, Temp_table, by = "Geneid", sort = F)
+        }
+    }
+    #sample_name = gsub(".*-(.*)_S.*","\\1", File_name)
+    #sample_name = gsub(".count", "", File_name)
+    rownames(Table_merged) = Table_merged[,"Geneid"]
+    Table_merged[,"Geneid"] = NULL
+    names(Table_merged) = File_name
+    Table_merged
+}
+rawdata.Malek = merge_featureCount(DATA_dir=count_dir,  file_pattern="STAR_", subtract_pattern = ".summary")
+
+############# raw
+class(rawdata.Malek)
+dim(rawdata.Malek)
+head(rawdata.Malek)
+
+rawdata.Malek_colnames <- as.factor(colnames(rawdata.Malek))
+rawdata.Malek_colnames <- as.data.frame(rawdata.Malek_colnames)
+
+class(rawdata.Malek_colnames)
+head(rawdata.Malek_colnames)
+colnames(rawdata.Malek_colnames) <- "ID"
+
+Malek.Stype = read.csv(paste0(SampleInfo_dir,"/SampleID_INFO3-with-batch.csv"),header=T)               ####
+Malek.Stype1 = read.csv(paste0(SampleInfo_dir,"/SampleID_INFO4-with-batch.csv"),header=T)              ####
+#Malek.Stype2 = read.csv(paste0(SampleInfo_dir,"/SampleID_INFO5-short.csv"),header=T)                  ####
+
+matched_Mtx = left_join(rawdata.Malek_colnames, Malek.Stype, by = "ID")         # added 12-18-2018 merge may have order changes  #from dplyr
+colnames(rawdata.Malek) <- matched_Mtx$SampleID                                 # this step is used to change sample name to short form e.g. "G1-4h-P1"
+write.csv(rawdata.Malek, file.path(Out_dir, "rawdata.Malek.csv"), row.names=T)                        
+
+##### cpm 
+rawdata.Malek.cpms <- cpm(rawdata.Malek) 
+head(rawdata.Malek.cpms)
+## filter out genes not expressed in at least 10 samples at 0.5 CPM
+keep <- rowSums(rawdata.Malek.cpms  > 0.5)  >  10    # 2 to 10  
+rawdata.Malek.filtrcpms <- rawdata.Malek[keep,]
+
+
+rawdata.Malek.matrix <- as.matrix(rawdata.Malek)
+samples <- colnames(rawdata.Malek.matrix)
+
+length(unique(samples)) == length(samples)    # make sure no repeated name
+
+treatment_timepoint_list  <- strsplit(samples ,"-P")
+df_treat_tpoint <- data.frame(matrix(unlist(treatment_timepoint_list), nrow = length(treatment_timepoint_list), byrow = T))
+treatment       <- df_treat_tpoint$X1
+group           <- data.frame(samples, treatment)        # group is needed for DESeqDataSetFromMatrix
+
+identical(as.character(group$samples), colnames(rawdata.Malek.matrix))   # this step is critical
+
+dds_data <- DESeqDataSetFromMatrix(countData = rawdata.Malek.matrix,
+                                   colData = group,       # argument "colData" is missing,
+                                   design = ~ 1)          # treatment
+
+dds              <- estimateSizeFactors(dds_data)
+factorized_reads <- counts(dds, normalized = TRUE)
+factorized_reads <- as.data.frame(factorized_reads)
+#write.csv(factorized_reads, file.path(Out_dir, "factorized_norm_reads.csv"), row.names=T)
+
+colnames_of_reads <- as.data.frame(colnames(factorized_reads))
+colnames(colnames_of_reads) <- "ID"
+
+Malek.Stype_reorder <- left_join(colnames_of_reads, Malek.Stype1, by = "ID")
+batch <- Malek.Stype_reorder$BATCH
+Malek.Stype_Re = Malek.Stype_reorder
+
+identical(colnames(factorized_reads), as.character(Malek.Stype_reorder$ID))   # makes sure the order is correct 2019-01-02 : critical !! 
+
+factorized_reads_wo_batch <- removeBatchEffect(factorized_reads, batch)
+#write.csv(factorized_reads_wo_batch, file.path(Out_dir, "factorized_reads_wo_batch.csv"), row.names=T)
+
+rawdata.Malek.wo0 = rawdata.Malek[rowSums(factorized_reads_wo_batch)>0, ]
+vsd.Malek.wo0     = varianceStabilizingTransformation(as.matrix(rawdata.Malek.wo0))
+#vsd.Malek         = varianceStabilizingTransformation(as.matrix(rawdata.Malek))
+
+```
+
+#### Make heatmap and PCA plot
+
+```{r, eval=FALSE}
+# PCA and heatmap
+
+Data=vsd.Malek.wo0   
+tmp.pca = prcomp(t(Data), center = T, scale.= T)                  # scale. from F to T    noted 12-20
+Tmp_1   = summary(tmp.pca)
+var.pc1 = percent(Tmp_1$importance[2, "PC1"])                     # change from 31.9 to 19.0 after scale =T 
+var.pc2 = percent(Tmp_1$importance[2, "PC2"])                     # change from 16.4 to 12.1 after scale =T 
+
+PCA_3D = function(Data, output_pca, out_dir, g1_level = NULL, g2_level = NULL, legend.add=F){
+    #clean data column name
+    colnames(Data) = gsub("STAR_", "", colnames(Data))
+    colnames(Data) = gsub(".count", "", colnames(Data))
+    colnames(Data) = gsub("_R1", "", colnames(Data))
+    
+    hmcol<-rev(colorRampPalette(brewer.pal(9, "Set1"))(256))
+    pch = 16
+    if(is.null(g1_level)){
+        type_level = pch
+        col_level = "black"
+    }else{
+        TEMP = factor(g1_level)
+        uniq_label_1 =  levels(TEMP)
+        levels(TEMP) = hmcol[ceiling(seq(length.out=length(levels(TEMP)),from=1,to=256))]
+        col_level = as.character(TEMP)
+        uniq_col = levels(TEMP)
+        if(!is.null(g2_level)){
+            TEMP = factor(g2_level)
+            uniq_label_2 =  levels(TEMP)
+            levels(TEMP) = as.character(c(19,17,15,18,3,4,7,8,9,10)[1:length(levels(TEMP))])
+            type_level = as.numeric(as.character(TEMP))
+            uniq_type = as.numeric(levels(TEMP))
+        }else{
+            type_level = pch
+        }
+    }
+    
+    fig.w = 7
+    fig.h = 7
+    par(mar=c(6.1, 4.1, 1.5, 3.1), xpd=TRUE)
+    par(oma=c(0,0,0,0))
+    Data.pca = prcomp(t(Data), center = T, scale. = T)  # 12-31-2018 scale . to T  
+    with(data.frame(Data.pca$x), scatter3D(PC1, PC2, PC3, colvar = NULL, 
+                                           type="h", lty.hplot=2, cex=1,
+                                           ticktype = "detailed", nticks = 2,
+                                           bty = "b2", #bty="b2", 
+                                           xlab="PC 1",	ylab="PC 2",zlab="PC 3", 
+                                           theta = -50, phi = 40, 
+                                           pch=type_level,
+                                           col=col_level,
+                                           main = "Principal component analysis") )
+    if(!is.null(g1_level)){
+        legend("right", legend = uniq_label_1, pch=pch, 
+               col = uniq_col, bty= "n", inset=c(0.2,0.3), xjust=0,
+               cex=0.8)
+    }
+    if(!is.null(g2_level)){
+        legend("bottomright", legend = uniq_label_2, pch=uniq_type, 
+               col = "grey", bty= "n", inset=c(0.2,-0.1), xjust=0,
+               cex=0.8)
+    }
+    if(!legend.add){
+        sample_label = colnames(Data)
+    }else{
+        sample_label = 1:ncol(Data)
+    }
+    with(data.frame(Data.pca$x), text3D(x=PC1, y=PC2, 
+                                        z=PC3, labels = integer(length(PC1)), col = "black", add=TRUE, colkey = FALSE, adj=1.7, cex=0.5) 
+    )
+    if(legend.add){
+        legend("bottom", legend = paste0(1:ncol(Data), ": ", colnames(Data)), pch=0, yjust = 0, 
+               col = "white", cex=0.3, bty= "n", ncol = 2, inset=c(-0.1,-0.2))
+        fig.h = 10
+    }
+    dev.copy(pdf, file=paste0(out_dir,"/",output_pca), width=fig.w, height=fig.h)
+    dev.off()
+}
+PCA_3D(vsd.Malek.wo0, "PCA_Malek_3D.pdf", Out_dir, Malek.Stype$TYPE)   # note ,should be pdf
+
+# pca for selected variables with 2 ID 
+
+PCA_2D = function(Data, output_pca, out_dir, g_level, g2_level=NULL, clustering = NULL, label = FALSE,  label_info = NA, X_lim = NULL, Y_lim = NULL, g_lab = "", g2_lab = NA){
+    
+    # tmp.pca = prcomp(t(Data), center = T, scale.= T )  # from F    noted 12-20
+    # tmp_pca_data_frame = as.data.frame(tmp.pca$x)  
+    # tmp_pca_data_frame$ID = row.names(tmp_pca_data_frame)  
+    # selected_Malek.Stype = Malek.Stype[, c("ID", "SampleID")] 
+    # output_PCA = left_join(selected_Malek.Stype, tmp_pca_data_frame, by = "ID")       ################ added 12-12-2018 merge may have order changes  #from dplyr
+    # write.csv(output_PCA[, c(1:4)], paste0(Out_dir, output_pca, ".csv"))
+    
+    TEMP = factor(as.character(g_level))
+    uniq_label =  levels(TEMP)
+    levels(TEMP) = rev(colorRampPalette(brewer.pal(9, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]
+    
+    TEMP.PCA = data.frame(tmp.pca$x, T_level = factor(g_level))
+    Temp.plot = ggplot(data = TEMP.PCA, aes(x = PC1, y = PC2))
+    
+    GG = Temp.plot + 
+        coord_fixed() +  
+        scale_color_manual(name= g_lab,values = levels(TEMP)) + 
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1), 
+              legend.position = "right", legend.direction = "vertical", legend.key = element_blank()) +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(!is.null(g2_level)){
+        TEMP2 = factor(g2_level)
+        levels(TEMP2) = as.numeric(c(19,17,15,18,3,4,7,8,9,10)[1:length(levels(TEMP2))])
+        GG = GG + geom_point(aes(colour = T_level, shape = g2_level)) + scale_shape_manual(name=g2_lab, values = as.numeric(levels(TEMP2)))
+    }else{
+        GG = GG + geom_point(aes(colour = T_level))
+    }
+    if(label){
+        GG = GG + geom_text(aes(label=label), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    if(!is.null(clustering)){
+        GG = GG + stat_ellipse(aes(group = Cluster), color="black", linetype = 2, type = "t")
+    }
+    if(!is.null(X_lim)){
+        GG = GG + coord_cartesian(xlim = X_lim)
+    }
+    
+    output_pca = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+# PCA_2D(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_all_groups", out_dir= Out_dir, 
+#        g_level=Malek.Stype$TYPE1, g2_level = factor(Malek.Stype$TYPE2, levels = c("4h", "16h", "72h")),  
+#        label = Malek.Stype$TYPE3,  
+#        g_lab = "Treatment-Group", g2_lab = "Time-Point")  # .pdf
+
+```
+
+```{r, eval=FALSE}
+PCA_2D_with_batch = function(Data, output_pca, out_dir, g_level, g2_level=NULL, clustering = NULL, label = FALSE,  label_info = NA, X_lim = NULL, Y_lim = NULL, g_lab = "", g2_lab = ""){
+    
+    TEMP = factor(as.character(g_level))
+    uniq_label =  levels(TEMP)
+    levels(TEMP) = rev(colorRampPalette(brewer.pal(4, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]  # changed here
+    
+    #TEMP.PCA = data.frame(tmp.pca$x, T_level = factor(g_level), C_level = col_level)
+    TEMP.PCA = data.frame(tmp.pca$x, T_level = factor(g_level), C_level = g2_level)
+    
+    Temp.plot = ggplot(data = TEMP.PCA, aes(x = PC1, y = PC2))
+    GG = Temp.plot + 
+        coord_fixed() +  
+        scale_color_manual(name= g_lab,values = levels(TEMP)) + 
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1), 
+              legend.position = "right", legend.direction = "vertical", legend.key = element_blank()) +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(!is.null(g2_level)){
+        TEMP2 = factor(g2_level)
+        levels(TEMP2) = as.numeric(c(19,17,15,18,3,4,7,8,9,10)[1:length(levels(TEMP2))])
+        GG = GG + geom_point(aes(colour = T_level, shape = g2_level)) + scale_shape_manual(name=g2_lab, values = as.numeric(levels(TEMP2)))
+    }else{
+        GG = GG + geom_point(aes(colour = T_level))
+    }
+    if(label){
+        GG = GG + geom_text(aes(label=label), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    
+    output_pca = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+
+
+PCA_2D_with_batch(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_all_groups_with_batch_normalized_and_batch_removed", out_dir= Out_dir, 
+                  g_level= Malek.Stype_Re$BATCH, g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")),  
+                  #g_level= Malek.Stype_reorder$BATCH, g2_level = factor(Malek.Stype_reorder$TYPE2, levels = c("4h", "16h", "72h")),  
+                  label =  Malek.Stype_Re$TYPE3,  
+                  g_lab = "Batches", g2_lab = "Time-Point")  # .pdf
+
+#############
+
+PCA_2D_with_batch_with_time_point = function(Data, output_pca, out_dir, g_level, g2_level=NULL, 
+                                             clustering = NULL, label = FALSE,  
+                                             label_info = NA, 
+                                             X_lim = NULL, Y_lim = NULL, 
+                                             g_lab = "", g2_lab = "",
+                                             batch_level = Malek.Stype$BATCH,
+                                             selected_g2_level = NA  )   {
+    
+    TEMP = factor(as.character(g_level))
+    uniq_label =  levels(TEMP)
+    levels(TEMP) = rev(colorRampPalette(brewer.pal(4, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]  # changed here
+    
+    TEMP.PCA1 = data.frame(tmp.pca$x, G_level = factor(g_level), G2_level = factor(g2_level), Batch_level = batch_level) #T_level = factor(g_level), 
+    
+    TEMP.PCA =  TEMP.PCA1[ which(TEMP.PCA1$G2_level %in% selected_g2_level), ]
+    p <- ggplot(TEMP.PCA, aes(PC1, PC2)) + 
+        geom_point(size=2, aes(colour = factor(Batch_level),  shape=  G_level )) 
+    #geom_point(size=2, aes(colour = factor(Batch_level),  shape= 1:nlevels(TEMP.PCA$G_level)  )) 
+    
+    GG = p + 
+        scale_colour_manual(name= "batch_level", values = c("black", "red", "blue", "green")) + #, "orange"
+        scale_shape_manual(values=1:nlevels(TEMP.PCA$G_level)   ) +    #https://stackoverflow.com/questions/26223857/more-than-six-shapes-in-ggplot  hard to do here
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1)   ) +
+        ggtitle( paste0( "Treatment ", selected_g2_level, " with batch annotated")) +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(label){
+        GG = GG + geom_text(aes(label= label_info), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    
+    output_pca1 = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca1),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+PCA_2D_with_batch_with_time_point(Data=vsd.Malek.wo0, 
+                                  output_pca="PCA2D_Malek_all_groups_with_batch_with_4h_normalized_and_batch_removed", 
+                                  out_dir= Out_dir, 
+                                  g_level = Malek.Stype_Re$TYPE1,
+                                  g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")),
+                                  selected_g2_level = c("4h"),
+                                  batch_level = Malek.Stype_Re$BATCH,
+                                  label = Malek.Stype_Re$TYPE3,
+                                  g_lab = "Batches", 
+                                  g2_lab = "Time-Point"
+)  # .pdf
+
+PCA_2D_with_batch_with_time_point(Data=vsd.Malek.wo0, 
+                                  output_pca="PCA2D_Malek_all_groups_with_batch_with_16h_normalized_and_batch_removed", 
+                                  out_dir= Out_dir, 
+                                  g_level = Malek.Stype_Re$TYPE1,
+                                  g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")),
+                                  selected_g2_level = c("16h"),
+                                  batch_level = Malek.Stype_Re$BATCH,
+                                  label = Malek.Stype_Re$TYPE3,
+                                  g_lab = "Batches", 
+                                  g2_lab = "Time-Point"
+)  # .pdf
+
+PCA_2D_with_batch_with_time_point(Data=vsd.Malek.wo0, 
+                                  output_pca="PCA2D_Malek_all_groups_with_batch_with_72h_normalized_and_batch_removed", 
+                                  out_dir= Out_dir, 
+                                  g_level = Malek.Stype_Re$TYPE1,
+                                  g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")),
+                                  selected_g2_level = c("72h"),
+                                  batch_level = Malek.Stype_Re$BATCH,
+                                  label = Malek.Stype_Re$TYPE3,
+                                  g_lab = "Batches", 
+                                  g2_lab = "Time-Point"
+)  # .pdf
+
+```
+
+```{r, eval=FALSE}
+
+PCA_2D_of_single_group = function(Data, output_pca, out_dir, g_level, g2_level=NULL, clustering = NULL, label = FALSE,  
+                                  label_info = NA, X_lim = NULL, Y_lim = NULL, g_lab = "", g2_lab = "", 
+                                  selected_Type1 = NA, selected_Type2 = NA){
+    
+    TEMP = factor(as.character(g_level[g_level %in% selected_Type1]))  # single group or slected groups 
+    
+    uniq_label =  levels(TEMP)
+    levels(TEMP) = rev(colorRampPalette(brewer.pal(9, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]
+    col_level = as.character(TEMP)
+    
+    ##########################
+    TEMP.PCA1 = data.frame(tmp.pca$x, T_level = factor(g_level))
+    ##########################
+    
+    if(!is.null(g2_level)){
+        TEMP.PCA1$g2_level = factor(g2_level)
+    }
+    if(!is.null(clustering)){
+        TEMP.PCA1$Cluster = clustering
+    }
+    
+    if(label){
+        TEMP.PCA1$sampleID = rownames(tmp.pca$x)
+    }
+    
+    TEMP.PCA =  TEMP.PCA1[ which(TEMP.PCA1$T_level %in% selected_Type1), ]
+    
+    
+    Temp.plot = ggplot(data = TEMP.PCA, aes(x = PC1, y = PC2))
+    GG = Temp.plot + 
+        coord_fixed() +  
+        scale_color_manual(name= g_lab, values = c("black") ) + ##    
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1), 
+              #legend.position = "right", legend.direction = "vertical", legend.key = element_blank() ) + 
+        ) +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(!is.null(g2_level)){
+        TEMP2 = TEMP.PCA$g2_level
+        levels(TEMP2) = as.numeric(c(19,17,15,18,3,4,7,8,9,10)[1:length(levels(TEMP2))])
+        
+        GG = GG + geom_point(aes(colour = T_level, shape = g2_level)) + scale_shape_manual(name=g2_lab, values = as.numeric(levels(TEMP2)))
+    }else{
+        GG = GG + geom_point(aes(colour = T_level))
+    }
+    
+    if(label){
+        GG = GG + geom_text(aes(label=label_info), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    
+    
+    output_pca_f = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca_f),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G1")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_1_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G1")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G2")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_2_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G2")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G3")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_3_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G3")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G4")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_4_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G4")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G5")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_5_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1,
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G5")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G6")), ]
+PCA_2D_of_single_group(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group_6_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                       g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                       label = TRUE, label_info = person_lable$TYPE3,  
+                       g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G6")) 
+
+############################################################################################
+PCA_2D_of_single_group_batch =  function(Data, output_pca, out_dir, g_level, g2_level=NULL, 
+                                         clustering = NULL, label = FALSE,  label_info = NA, X_lim = NULL, Y_lim = NULL, 
+                                         g_lab = "", g2_lab = "", batch_level = Malek.Stype_Re$BATCH, selected_Type1 = c("G1"), show_batch = TRUE)    {
+    
+    # TEMP = factor(as.character(batch_level))
+    # uniq_label =  levels(TEMP)
+    # levels(TEMP) = rev(colorRampPalette(brewer.pal(4, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]  # changed here
+    # col_level = as.character(TEMP)
+    
+    TEMP.PCA1 = data.frame(tmp.pca$x, T_level = factor(g_level), C_level = factor(batch_level))
+    
+    if(!is.null(g2_level)){
+        TEMP.PCA1$g2_level = factor(g2_level)
+    }
+    
+    if(label){
+        TEMP.PCA1$sampleID = rownames(tmp.pca$x)
+    }
+    
+    TEMP.PCA =  TEMP.PCA1[ which(TEMP.PCA1$T_level %in% selected_Type1), ]
+    
+    batch_level_in_data = TEMP.PCA$C_level
+    TEMP = factor(as.character(batch_level_in_data))  #########################################   12-12\
+    
+    p <- ggplot(TEMP.PCA, aes(PC1, PC2)) +
+        geom_point(size=2, aes(colour = factor(C_level),  shape=  factor(g2_level)   )) 
+    GG = p + scale_colour_manual(name= "batch_level", values = c("black", "red", "blue", "green")) + #, "orange"
+        #scale_shape_manual(values = as.numeric(levels(TEMP2))) +#colour = T_level,
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1)   ) +
+        ggtitle( paste0( "Treatment ",  selected_Type1, " with batch annotated")) +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(label){
+        GG = GG + geom_text(aes(label= label_info), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    
+    output_pca1 = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca1),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G1")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_1_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G1") )
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G2")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_2_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G2") )  
+
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G3")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_3_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G3") )  
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G4")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_4_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G4") )  
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G5")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_5_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G5") )  
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G6")), ]
+PCA_2D_of_single_group_batch(Data=vsd.Malek.wo0, 
+                             output_pca="PCA2D_Malek_group_6_with_batch_normalized_and_batch_removed", 
+                             out_dir= Out_dir, 
+                             g_level = Malek.Stype_Re$TYPE1, 
+                             batch_level = Malek.Stype_Re$BATCH , 
+                             g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                             label = TRUE, 
+                             label_info = person_lable$TYPE3,  
+                             g_lab = "Batch", 
+                             g2_lab = "Time-Point", 
+                             selected_Type1 = c("G6") )  
+
+##### ============ 2 groups plotted in one figure ============== #####
+PCA_2D_of_selected = function(Data, output_pca, out_dir, g_level, g2_level=NULL, 
+                              clustering = NULL, label = FALSE,  label_info = NA, 
+                              X_lim = NULL, Y_lim = NULL, 
+                              g_lab = "", g2_lab = "", 
+                              selected_Type1 = NA, selected_Type2 = NA){
+    
+    tmp.pca = prcomp(t(Data), center = T,   scale. = T ) # 2018-12-31  scale. to T
+    
+    tmp_pca_data_frame = as.data.frame(tmp.pca$x)  
+    tmp_pca_data_frame$ID = row.names(tmp.pca$x)   # the wield thing is the  "-" was changed to "." in the above as.data.frame step  
+    
+    if (is.na(selected_Type1) && is.na(selected_Type2) ) {
+        selected_Malek.Stype = Malek.Stype_Re[, c("ID")]  #?????????, "SampleID"  12-20 changed
+    } else {
+        selected_Malek.Stype = Malek.Stype_Re[ which( Malek.Stype_Re$TYPE1 %in% selected_Type1 ), c("ID"), drop = F] #, "SampleID" 12-31- to TYPE 
+    }
+    
+    output_PCA = left_join(selected_Malek.Stype, tmp_pca_data_frame, by = "ID")     ## added 12-12-2018 merge may have order changes  #from dplyr
+    
+    write.csv(output_PCA[, c(1:4)], paste0(Out_dir, output_pca, ".csv"))
+    
+    Tmp_1   = summary(tmp.pca)
+    var.pc1 = percent(Tmp_1$importance[2, "PC1"])
+    var.pc2 = percent(Tmp_1$importance[2, "PC2"])
+    
+    if (is.na(selected_Type1) && is.na(selected_Type2)) {         
+        TEMP = factor(as.character(g_level))                               ####  12-12
+        
+    } else {                  
+        TEMP = factor(as.character(g_level[g_level %in% selected_Type1]))  ####  12-12
+    }
+    
+    uniq_label =  levels(TEMP)
+    levels(TEMP) = rev(colorRampPalette(brewer.pal(9, "Set1"))(256))[ceiling(seq(length.out=length(uniq_label),from=1,to=256))]
+    col_level = as.character(TEMP)
+    
+    ##########################
+    TEMP.PCA1 = data.frame(tmp.pca$x, T_level = factor(g_level))
+    ##########################
+    
+    if(!is.null(g2_level)){
+        TEMP.PCA1$g2_level = factor(g2_level)
+    }
+    if(!is.null(clustering)){
+        TEMP.PCA1$Cluster = clustering
+    }
+    
+    if(label){
+        TEMP.PCA1$sampleID = rownames(tmp.pca$x)
+    }
+    
+    TEMP.PCA =  TEMP.PCA1[ which(TEMP.PCA1$T_level %in% selected_Type1), ]
+    
+    Temp.plot = ggplot(data = TEMP.PCA, aes(x = PC1, y = PC2))
+    GG = Temp.plot + 
+        coord_fixed() +  
+        scale_color_manual(name= g_lab, values = levels(TEMP)) +    ####
+        theme(panel.background = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+              panel.border = element_rect(colour = "grey", fill=NA, size=1), 
+              #legend.position = "right", legend.direction = "vertical", legend.key = element_blank() ) +
+        )   +
+        xlab(paste0("Principal component 1 (", var.pc1, ")")) + 
+        ylab(paste0("Principal component 2 (", var.pc2, ")")) 
+    
+    if(!is.null(g2_level)){
+        TEMP2 = TEMP.PCA$g2_level
+        levels(TEMP2) = as.numeric(c(19,17,15,18,3,4,7,8,9,10)[1:length(levels(TEMP2))])
+        
+        GG = GG + geom_point(aes(colour = T_level, shape = g2_level)) + scale_shape_manual(name=g2_lab, values = as.numeric(levels(TEMP2)))
+    }else{
+        GG = GG + geom_point(aes(colour = T_level))
+    }
+    
+    if(label){
+        GG = GG + geom_text(aes(label=label_info), size=1.5, hjust = -0.2, nudge_x = 1)
+    }
+    if(!is.null(X_lim)){
+        GG = GG + coord_cartesian(xlim = X_lim)
+    }
+    
+    output_pca_f = paste0(output_pca, ".pdf")   ### added 
+    ggsave(file.path(out_dir, output_pca_f),
+           GG,
+           device = "pdf",
+           width = 8,   # 6
+           height = 6)  #4.25
+}
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G1", "G2")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group1_vs_group2_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G1", "G2"))  
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G1", "G3")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group1_vs_group3_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G1", "G3")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G2", "G3")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group2_vs_group3_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G2", "G3")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G4", "G5")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group4_vs_group5_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G4", "G5")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G4", "G6")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group4_vs_group6_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G4", "G6")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G5", "G6")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group5_vs_group6_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G5", "G6")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G1", "G5")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group1_vs_group5_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G1", "G5")) 
+
+person_lable = Malek.Stype_Re[which(Malek.Stype_Re$TYPE1 %in% c("G3", "G6")),]
+PCA_2D_of_selected(Data=vsd.Malek.wo0, output_pca="PCA2D_Malek_group3_vs_group6_normalized_and_batch_removed", out_dir= Out_dir, g_level = Malek.Stype_Re$TYPE1, 
+                   g2_level = factor(Malek.Stype_Re$TYPE2, levels = c("4h", "16h", "72h")), 
+                   label = TRUE, label_info = person_lable$TYPE3,  
+                   g_lab = "Group", g2_lab = "Time-Point", selected_Type1 = c("G3", "G6")) 
+
+```
+
+
+### Run DESeq analysis
+
+```{r, eval=TRUE}
+# run DESeq analysis
+# DESeq_2group: comparing trt with control
+# DESeq_mlutigroupLRT: overall test whether there is difference among groups
+DESeq_2group = function(DATA_raw, Sample_ty1, Sample_ty2, Sample_info){
+    cat("Updated 04/08/2017 *use pooled variance from ALL samples*
+        Note: Universal gene name must be gene symbol with column identifying name 'gene_id'\n")
+    cat("   Sample_info must be supplied with the column format 'ID' corresponds colnames(DATA_raw)
+        and 'TYPE' corresponds Sample_ty1 and Sample_ty2\n")
+    options(scipen=500)
+    cat("Matching Sample ID...\n")
+    w.1 = match(Sample_info$ID, colnames(DATA_raw))
+    cat("  all selected sample names:\n")
+    print(colnames(DATA_raw)[w.1])
+    Data_s = DATA_raw[, w.1]
+    if(length(grep("TYPE1", colnames(Sample_info)))==0){
+        Sample_id1 = which(Sample_info$TYPE==Sample_ty1)
+        Sample_id2 = which(Sample_info$TYPE==Sample_ty2)
+        condition = factor(Sample_info$TYPE)
+        dds = DESeqDataSetFromMatrix(Data_s, DataFrame(condition), ~ condition)
+    }else{
+        cat("Samples stratified into multiple types using TYPE2 information\n")
+        Sample_id1 = which(Sample_info$TYPE1==Sample_ty1)
+        Sample_id2 = which(Sample_info$TYPE1==Sample_ty2)
+        condition = factor(Sample_info$TYPE1)
+        type2 = factor(Sample_info$TYPE2)
+        dds = DESeqDataSetFromMatrix(Data_s, DataFrame(data.frame(condition, type2)), ~ condition + type2)
+    }
+    return(results(DESeq(dds), c("condition", Sample_ty1, Sample_ty2)))
+}
+
+# automatic combine differential results with annotated and normalized data
+DESeq_2group_wAnno = function(DATA_raw, Sample_ty1, Sample_ty2, Sample_info, Anno_table, out_dir, 
+                              coldrop_DE = c("lfcSE"), sort.by = "padj", use_log2 = T,
+                              norm.data = factorized_reads_wo_batch,  # note here
+                              ordered_column_vector = NULL){
+    cat("Note: Updated 04/08/2017 *use pooled variance from ALL samples*
+        Universal gene name must be gene symbol with column identifying name 'gene_id'\n")
+    cat("   Sample_info must be supplied with the column format 'ID' corresponds colnames(DATA_raw)
+        and 'TYPE' corresponds Sample_ty1 and Sample_ty2\n")
+    options(scipen=500)
+    cat("Matching Sample ID...\n")
+    
+    w.1 = match(Sample_info$ID, colnames(DATA_raw))
+    
+    cat("  all selected sample names:\n")
+    print(colnames(DATA_raw)[w.1])
+    Data_s = DATA_raw[, w.1]
+    
+    # if(length(grep("TYPE1", colnames(Sample_info)))==0){
+    Sample_id1 = which(Sample_info$TYPE==Sample_ty1)
+    Sample_id2 = which(Sample_info$TYPE==Sample_ty2)
+    condition = factor(Sample_info$TYPE)
+    dds = DESeqDataSetFromMatrix(Data_s, DataFrame(condition), ~ condition)
+    # }else{
+    #     cat("Samples stratified into multiple types using TYPE2 information\n")
+    #     Sample_id1 = which(Sample_info$TYPE1==Sample_ty1)
+    #     Sample_id2 = which(Sample_info$TYPE1==Sample_ty2)
+    #     condition = factor(Sample_info$TYPE1)
+    #     type2 = factor(Sample_info$TYPE2)
+    #     dds = DESeqDataSetFromMatrix(Data_s, DataFrame(data.frame(condition, type2)), ~ condition + type2)
+    # }
+    
+    Temp_DE = results(DESeq(dds), c("condition", Sample_ty1, Sample_ty2))
+    
+    if(!use_log2){
+        colnames(Temp_DE)[grep("log2FoldChange", colnames(Temp_DE))] = "FoldChange"
+        Temp_DE$FoldChange = 2^Temp_DE$FoldChange
+        Temp_DE$FoldChange = ifelse(Temp_DE$FoldChange>=1, Temp_DE$FoldChange, -1/Temp_DE$FoldChange)
+    }else{
+        colID_log2FC = grep("log2FoldChange", colnames(Temp_DE))
+        Temp_DE = data.frame(Temp_DE[, 1:colID_log2FC], FoldChange = 2^Temp_DE$log2FoldChange, Temp_DE[, (colID_log2FC+1):ncol(Temp_DE)], check.names = F)
+    }
+    
+    Temp_DE = data.frame(gene_id_DE = rownames(Temp_DE), Temp_DE[, !(colnames(Temp_DE) %in% coldrop_DE)], check.names = F)
+    
+    Sample.name.match = match(c(as.character(Sample_info$ID[Sample_id1]), as.character(Sample_info$ID[Sample_id2])), colnames(DATA_raw))
+    Temp_DEwCount = merge(Temp_DE, data.frame(gene_id_DE = rownames(DATA_raw), DATA_raw[, Sample.name.match], check.names = F), by="gene_id_DE", all.x=F, all.y=T, sort=F)
+    
+    # determine which gene annotation files to use
+    if(colnames(Anno_table)[1]=="ensembl_gene_id"){
+        Temp_DEwAnno = merge(Anno_table, Temp_DEwCount, by.x = "ensembl_gene_id", by.y ="gene_id_DE", all.x=F, all.y = T, sort=F)
+    }else{
+        Temp_DEwAnno = merge(Anno_table, Temp_DEwCount, by.x = "gene_id", by.y="gene_id_DE", all.x=F, all.y = T, sort=F)
+    }
+    
+    #print(colnames(Temp_DEwAnno))
+    # sort data
+    if(sort.by=="padj"){
+        # write.table(Temp_DEwAnno[order(Temp_DEwAnno$padj, Temp_DEwAnno$pvalue),], paste0(out_dir, "/2Groups_data_only", Sample_ty1,"vs",Sample_ty2,".tsv"), row.names=F, sep = "\t", quote=F) # ".xls" "csv" "\t"
+    }else{
+        # write.table(Temp_DEwAnno, paste0(out_dir, "/", Sample_ty1,"vs",Sample_ty2,".tsv"), row.names=F, sep = "\t", quote=F) # ".xls"  "csv" "\t"
+    }
+    
+    #selected_samples <- Sample_info[ which(Sample_info$TYPE %in% c(Sample_ty1, Sample_ty2)), ]
+    #selected_norm.data <- norm.data[ , which(colnames(norm.data) %in% selected_samples$ID)
+    
+    #selected_norm.data <- norm.data[ , which(colnames(norm.data) %in% Malek.reads_info$Sample_info$ID)]
+    selected_norm.data <- norm.data[ , which(colnames(norm.data) %in%  ordered_column_vector)]
+    selected_norm.data_ordered <- selected_norm.data[, match( ordered_column_vector, colnames(selected_norm.data) ) ]
+    selected_norm.data_ordered.df <-  as.data.frame(selected_norm.data_ordered)
+    
+    selected_norm.data_ordered.df$gene_id <- row.names(selected_norm.data_ordered.df)
+    
+    # merge is inner merge
+    Temp_DEwAnnoAndNormCount = merge(Temp_DEwAnno, selected_norm.data_ordered.df, by.x ="gene_id", by.y ="gene_id", sort=F)
+    write.table(Temp_DEwAnnoAndNormCount[order(Temp_DEwAnnoAndNormCount$padj, Temp_DEwAnnoAndNormCount$pvalue),], 
+                paste0(out_dir, "/", Sample_ty1,"_vs_",Sample_ty2,"_count_and_factor_norm_only.csv"), row.names=F, sep = ",", quote=F) #xls to csv
+}
+
+get_Malek.Stype_Re_Select <- function (selected_columns, sample1, sample2) {
+    rawdata.Malek_select = rawdata.Malek[, selected_columns]   
+    rawdata.Malek.cpms_select <- cpm(rawdata.Malek_select)  # filtering genes with CPM 
+    keep_select <- rowSums(rawdata.Malek.cpms_select  > 0.5)  >  2  # changed from 2
+    rawdata.Malek.filtrcpms_select <- rawdata.Malek_select[keep_select,]
+    
+    Malek.Stype_Selected = Malek.Stype_Re[which(Malek.Stype_Re$TYPE %in% c( sample1, sample2) ), ]
+    colnames_of_reads <- as.data.frame(colnames(rawdata.Malek.filtrcpms_select))
+    colnames(colnames_of_reads) <- "ID"
+    Malek.Stype_Re_Select <- left_join(colnames_of_reads, Malek.Stype_Selected, by = "ID")
+    if (identical(colnames(rawdata.Malek.filtrcpms_select), as.character(Malek.Stype_Re_Select$ID)) ) { # the order is critical 2019-01-02!! 
+        return(list("reads" = rawdata.Malek.filtrcpms_select, "Sample_info" =Malek.Stype_Re_Select))
+    } 
+}
+
+################  G1 vs G2 at 4 hour
+G1_G2_4h_columns <- c( "G1-4h-P1", "G1-4h-P2", "G1-4h-P3","G1-4h-P4","G1-4h-P5","G1-4h-P6",                              # change
+                       "G2-4h-P1", "G2-4h-P2", "G2-4h-P3","G2-4h-P4","G2-4h-P5","G2-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(selected_columns=G1_G2_4h_columns, sample1="G1-4h", sample2="G2-4h")       # change     
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G1-4h", Sample_ty2="G2-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G1_G2_4h_columns)  #factorized_reads_wo_batch
+
+################  G1 vs G3 at 4 hour  =============================================================
+G1_G3_4h_columns <- c( "G1-4h-P1", "G1-4h-P2", "G1-4h-P3","G1-4h-P4","G1-4h-P5","G1-4h-P6", 
+                       "G3-4h-P1", "G3-4h-P2", "G3-4h-P3","G3-4h-P4","G3-4h-P5","G3-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(G1_G3_4h_columns, "G1-4h", "G3-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G1-4h", Sample_ty2="G3-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G1_G3_4h_columns)
+
+################  G2 vs G3 at 4 hour  =============================================================
+G2_G3_4h_columns <- c( "G2-4h-P1", "G2-4h-P2", "G2-4h-P3","G2-4h-P4","G2-4h-P5","G2-4h-P6",        # change
+                       "G3-4h-P1", "G3-4h-P2", "G3-4h-P3","G3-4h-P4","G3-4h-P5","G3-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(G2_G3_4h_columns, "G2-4h", "G3-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G2-4h", Sample_ty2="G3-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G2_G3_4h_columns)
+
+################  G4 vs G5 at 4 hour  =============================================================
+G4_G5_4h_columns <- c( "G4-4h-P1", "G4-4h-P2", "G4-4h-P3","G4-4h-P4","G4-4h-P5","G4-4h-P6",        # change
+                       "G5-4h-P1", "G5-4h-P2", "G5-4h-P3","G5-4h-P4","G5-4h-P5","G5-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(G4_G5_4h_columns, "G4-4h", "G5-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G4-4h", Sample_ty2="G5-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G4_G5_4h_columns)
+
+################  G4 vs G6 at 4 hour  =============================================================
+G4_G6_4h_columns <- c( "G4-4h-P1", "G4-4h-P2", "G4-4h-P3","G4-4h-P4","G4-4h-P5","G4-4h-P6",        # change
+                       "G6-4h-P1", "G6-4h-P2", "G6-4h-P3","G6-4h-P4","G6-4h-P5","G6-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(G4_G6_4h_columns, "G4-4h", "G6-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G4-4h", Sample_ty2="G6-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G4_G6_4h_columns)
+
+
+################  G5 vs G6 at 4 hour  =============================================================
+G5_G6_4h_columns <- c( "G5-4h-P1", "G5-4h-P2", "G5-4h-P3","G5-4h-P4","G5-4h-P5","G5-4h-P6",
+                       "G6-4h-P1", "G6-4h-P2", "G6-4h-P3","G6-4h-P4","G6-4h-P5","G6-4h-P6" )
+Malek.reads_info <- get_Malek.Stype_Re_Select(G5_G6_4h_columns, "G5-4h", "G6-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G5-4h", Sample_ty2="G6-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G5_G6_4h_columns)
+
+################  G1 vs G5 at 4 hour
+G1_G5_4h_columns <- c( "G1-4h-P1", "G1-4h-P2", "G1-4h-P3","G1-4h-P4","G1-4h-P5","G1-4h-P6", 
+                       "G5-4h-P1", "G5-4h-P2", "G5-4h-P3","G5-4h-P4","G5-4h-P5","G5-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(selected_columns=G1_G5_4h_columns, sample1="G1-4h", sample2="G5-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G1-4h", Sample_ty2="G5-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G1_G5_4h_columns)
+
+################  G3 vs G6 at 4 hour  =============================================================
+G3_G6_4h_columns <- c( "G3-4h-P1", "G3-4h-P2", "G3-4h-P3","G3-4h-P4","G3-4h-P5","G3-4h-P6",        # change
+                       "G6-4h-P1", "G6-4h-P2", "G6-4h-P3","G6-4h-P4","G6-4h-P5","G6-4h-P6")
+Malek.reads_info <- get_Malek.Stype_Re_Select(G3_G6_4h_columns, "G3-4h", "G6-4h") 
+DESeq_2group_wAnno(DATA_raw=Malek.reads_info$reads, Sample_ty1="G3-4h", Sample_ty2="G6-4h", Sample_info=Malek.reads_info$Sample_info, Anno_table=table_hs38ID, out_dir=Out_dir, norm.data=factorized_reads, ordered_column_vector = G3_G6_4h_columns)
+
+```
+
+# heat maps
+```{r, eval=FALSE}
+# two group heatmap comparison, 
+#  select top DE 100 genes
+#  and separate them into up and down groups
+heatmap_2group = function(Data, Pvalue, log2FC, output_heatmap, out_dir, cutoffs = NULL, 
+                          padj_thrshd = NULL, high_id = NULL, low_id = NULL, dist_fun = "euclidean",
+                          gene_order_by = c("cluster", "fc", "none"),
+                          col_range=c("redblue", "redgreen"), main=NULL, return_matrix=F){
+    require(gplots)
+    col_range = col_range[1]
+    if(col_range == "redgreen"){
+        hmcol<-rev(redgreen(50))[-seq(35, 35)] 
+    }else if(col_range == "redblue"){
+        hmcol<-rev(redblue(50))[-seq(35, 35)]
+    }
+    message("If use cutoffs, the format is cutoffs=c(pval_cutoff, FC_cutoff)\n
+            If use high and low, specify the ids of columns\n")
+    #hmcol<-rev(colorRampPalette(brewer.pal(10, "RdYlGn"))(256))
+    #hmcol<-rev(colorRampPalette(brewer.pal(10, "RdBu"))(256))
+    if(is.null(high_id)&is.null(low_id)){
+        Data = Data
+        heatmap_colorder = 1:ncol(Data)
+    }else{
+        Data = Data[, c(high_id, low_id)]
+        heatmap_colorder = 1:ncol(Data)
+    }
+    if(!is.null(padj_thrshd)){
+        DE.sort = which(Pvalue < padj_thrshd)
+        title_lab = paste0("Features with significant DE for ", output_heatmap, " (adj.p < ",  padj_thrshd ,")")
+    }else if(is.null(cutoffs)){
+        DE.sort = order(Pvalue)[1:100]
+        title_lab = paste0("Top 100 most DE features\n(", output_heatmap, ")")
+    }else{
+        DE.sort = which((Pvalue < cutoffs[1])&(abs(log2FC) > cutoffs[2]))
+        title_lab = paste0("Features with significant DE\n(", output_heatmap, ")")
+    }
+    if(!is.null(main)){
+        title_lab = main
+    }
+    if(length(DE.sort)<=100){
+        labelrow = NULL
+    }else{
+        labelrow = NA
+    }
+    TEMP.data = data.frame(Data[DE.sort,])
+    TEMP.up = TEMP.data[log2FC[DE.sort]>=0,]
+    TEMP.dn = TEMP.data[log2FC[DE.sort]<0,]
+    gene_order_by = gene_order_by[1]
+    if(gene_order_by=="cluster"){ # default
+        if(nrow(TEMP.up)>2){
+            Data.up.hc = hclust(dist(TEMP.up), method="complete")  
+            rowInd.up <- order.dendrogram(as.dendrogram(Data.up.hc))
+            Temp1 = TEMP.data[log2FC[DE.sort]>=0,][rowInd.up,]
+        }else{
+            Temp1 = TEMP.data[log2FC[DE.sort]>=0,]
+        }
+        if(nrow(TEMP.dn)>2){
+            Data.dn.hc = hclust(dist(TEMP.dn), method="complete")
+            rowInd.dn <- order.dendrogram(as.dendrogram(Data.dn.hc))    
+            Temp2 = TEMP.data[log2FC[DE.sort]<0,][rowInd.dn,]
+        }else{
+            Temp2 = TEMP.data[log2FC[DE.sort]<0,]
+        }
+        Temp = rbind(Temp1, Temp2)
+    }else if(gene_order_by=="fc"){
+        o.1 = order(log2FC[DE.sort], decreasing = T)
+        Temp = TEMP.data[o.1,]
+    }else if(gene_order_by=="none"){
+        Temp = data.frame(Data)
+    }
+    
+    Data.sorted = as.matrix(Temp)
+    
+    #Data.sorted = t(apply(Data.sorted, 1, scale)) # add scaling by row for clustering????????
+    
+    rownames(Data.sorted) = rownames(Temp)
+    colnames(Data.sorted) = colnames(Data)
+    
+    #write.table(data.frame(rownames(Data.sorted)), file = paste0(out_dir,"/",output_heatmap,".genelist.csv"), row.names=F, col.names = F, quote=F)
+    if(nrow(Data.sorted)>1){
+        pdf(file=paste0(out_dir,"/",output_heatmap,".pdf"), width=2000/400, height=ceiling(3600/400*(0.66+nrow(Data.sorted)/300)))
+        par(cex.main=0.5)
+        heatmap.2(Data.sorted, hclustfun = function(h)hclust(h, method="complete"), col=hmcol, 
+                  distfun = function(d)dist(d, method=dist_fun), 
+                  Colv = heatmap_colorder, 
+                  reorderfun = function(d, w)reorder(d, w, mean),
+                  Rowv = F, dendrogram = "column", srtCol = 45, labRow = labelrow, cexRow = 0.5,
+                  scale="row",key=TRUE, keysize=0.5, symkey=FALSE,density.info="none", trace="none",cexCol=0.6,
+                  margins=c(4,5), lwid = c(1,4), lhei = c(0.9,5.8), key.par=list(mar=c(4, 1, 2, 0)),
+                  main = title_lab) #
+        dev.off()
+    }
+    if(return_matrix){
+        Data.sorted
+    }
+}
+### 1: G1_4h vs G2_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG1-4hvsG2-4h.tsv", sep = "\t", header = T) # changes
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)    
+
+heatmap_2group(Data=vsd.Malek.wo0[, G1_G2_4h_columns],
+               Pvalue=G1_4h_vs_G2_4h$pvalue[selectID.Treatment_vs_Control], 
+               log2FC=G1_4h_vs_G2_4h$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G1_4h_vs_G2_4h", 
+               out_dir=Out_dir,
+               cutoffs = NULL, 
+               padj_thrshd = NULL, 
+               high_id = NULL, 
+               low_id = NULL, 
+               dist_fun = "euclidean",
+               gene_order_by = c("cluster", "fc", "none"),
+               col_range=c("redblue", "redgreen"), 
+               main=NULL, 
+               return_matrix=F)
+
+### 2: G1_4h vs G3_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG1-4hvsG3-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), Gselected_sample_pair_w_time$gene_id)                                                          
+
+heatmap_2group(Data=vsd.Malek.wo0[, G1_G3_4h_columns],                              # changes this line
+               Pvalue=G1_4h_vs_G3_4h$pvalue[selectID.Treatment_vs_Control],         
+               log2FC=G1_4h_vs_G3_4h$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G1_4h_vs_G3_4h",                                     # changes this line
+               out_dir=Out_dir)
+
+### 3: G2_4h vs G3_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG2-4hvsG3-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                           
+
+heatmap_2group(Data=vsd.Malek.wo0[, G2_G3_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G2_4h_vs_G3_4h",                                              # changes this line
+               Out_dir)
+
+### 4: G4_4h vs G5_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG4-4hvsG5-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                           
+
+heatmap_2group(Data=vsd.Malek.wo0[, G4_G5_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G4_4h_vs_G5_4h",                                              # changes this line
+               Out_dir)
+
+### 5: G4_4h vs G6_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG4-4hvsG6-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                           
+
+heatmap_2group(Data=vsd.Malek.wo0[, G4_G6_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G4_4h_vs_G6_4h",                                              # changes this line
+               Out_dir)
+
+### 6: G5_4h vs G6_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG5-4hvsG6-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                          # chagne 
+
+heatmap_2group(Data=vsd.Malek.wo0[, G5_G6_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G5_4h_vs_G6_4h",                                              # changes this line
+               Out_dir)
+
+### 7: G1_4h vs G5_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG1-4hvsG5-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                          # chagne 
+
+heatmap_2group(Data=vsd.Malek.wo0[, G1_G5_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G1_4h_vs_G5_4h",                                              # changes this line
+               Out_dir)
+
+### 8: G3_4h vs G6_4h
+selected_sample_pair_w_time = read.table("/home/zxg161/DATA_ZG/tMalek3/Result/Malek_2019-01-02/2Groups_data_onlyG3-4hvsG6-4h.tsv", sep = "\t", header = T)   # change 
+selectID.Treatment_vs_Control = match(rownames(vsd.Malek.wo0), selected_sample_pair_w_time$gene_id)                                                          # chagne 
+
+heatmap_2group(Data=vsd.Malek.wo0[, G3_G6_4h_columns],                                       # changes this line
+               selected_sample_pair_w_time$pvalue[selectID.Treatment_vs_Control],           
+               selected_sample_pair_w_time$log2FoldChange[selectID.Treatment_vs_Control], 
+               output_heatmap="G3_4h_vs_G6_4h",                                              # changes this line
+               Out_dir)
+
+```
+
+### Heatmap manualy given gene list
+
+```{r, eval=FALSE}
+#  and separate them into up and down groups
+heatmap_gene_list_noclustering = function(DATA, G_list, log2FC, direct = c("left", "right", F, "cluster"), out_dir){
+    #hmcol<-rev(redgreen(50))[-seq(35, 35)] 
+    hmcol<-rev(redblue(50))[-seq(35, 35)]
+    #hmcol<-rev(colorRampPalette(brewer.pal(10, "RdYlGn"))(256))
+    direct = direct[1]
+    for(i in 1:length(G_list)){
+        output_name_tmp = names(G_list[i])
+        genes_input = G_list[[i]]
+        genes_input_match = na.omit(match(genes_input,rownames(DATA)))
+        TEMP.up = data.frame(DATA[genes_input_match,], check.names = F)[which((log2FC[genes_input_match]>=0)),]
+        TEMP.dn = data.frame(DATA[genes_input_match,], check.names = F)[which((log2FC[genes_input_match]<0)),]
+        cat(i,"\t",dim(DATA[genes_input_match,]),"\t",dim(TEMP.up),"\t",dim(TEMP.dn),"\n")
+        if(direct == "right"){
+            TEMP2 = TEMP.up
+            TEMP.up = TEMP.dn
+            TEMP.dn = TEMP2
+        }
+        if((nrow(TEMP.up)+nrow(TEMP.dn))<1){
+            cat("No outcome generated for ", output_name_tmp, "\n")
+            next
+        }
+        
+        if(nrow(TEMP.up)*nrow(TEMP.dn)==1){
+            Temp = rbind(TEMP.up, TEMP.dn)
+        }else if(nrow(TEMP.up)<2){
+            Data.dn.hc = hclust(dist(t(apply(TEMP.dn, 1, scale))), method="average")
+            rowInd.dn <- order.dendrogram(as.dendrogram(Data.dn.hc))
+            Temp = rbind(TEMP.up, TEMP.dn[rowInd.dn,])
+        }else if(nrow(TEMP.dn)<2){
+            Data.up.hc = hclust(dist(t(apply(TEMP.up, 1, scale))), method="average")
+            rowInd.up <- order.dendrogram(as.dendrogram(Data.up.hc))
+            Temp = rbind(TEMP.up[rowInd.up,], TEMP.dn)
+        }else{
+            Data.up.hc = hclust(dist(t(apply(TEMP.up, 1, scale))), method="average")
+            Data.dn.hc = hclust(dist(t(apply(TEMP.dn, 1, scale))), method="average")
+            rowInd.up <- order.dendrogram(as.dendrogram(Data.up.hc))
+            rowInd.dn <- order.dendrogram(as.dendrogram(Data.dn.hc))
+            Temp = rbind(TEMP.up[rowInd.up,], TEMP.dn[rowInd.dn,])
+        }
+        #print(Temp)
+        Data.sorted = as.matrix(Temp)
+        rownames(Data.sorted) = rownames(Temp)
+        n_gene = nrow(Data.sorted)
+        n_sample = ncol(Data.sorted)
+        png(file=paste0(out_dir,"/",output_name_tmp,".png"), width=200*n_sample, height=50*n_gene+1500, res = 600)
+        if(direct=="right"){
+            sample_order = 1:ncol(Temp) 
+        }else if(direct=="left"){
+            sample_order = ncol(Temp):1
+        }else if(direct==F){
+            sample_order = F
+        }else{
+            sample_order = T
+        }
+        key_height = 4*10/n_gene
+        heatmap.2(Data.sorted, hclustfun = function(h)hclust(h, method="average"), col=hmcol, 
+                  distfun = function(d)dist(d, method="euclidean"), 
+                  Colv = sample_order, 
+                  reorderfun = function(d, w)reorder(d, w, mean),
+                  Rowv = F, dendrogram = "column", srtCol = 45, cexRow = 0.7, 
+                  scale="row",key=TRUE, keysize=0.5, symkey=FALSE,density.info="none", trace="none",cexCol=0.8,
+                  margins=c(6,4.5), lwid = c(1.3,5.5), lhei = c(key_height,6), key.par=list(mar=c(4, 1, 2, 0.5)),
+                  main = output_name_tmp) #
+        #heatmap.2(Data.sorted, col=hmcol, Colv=sample_order, Rowv = F, dendrogram = "column",
+        #         scale="row",key=TRUE, keysize=0.55, symkey=FALSE,density.info="none",
+        #         srtCol = 45, trace="none",cexCol=1,margins=c(8,12))
+        dev.off()
+    }
+}
+
+gene.list1 = read.table(file.path(Danny_dir, "heatmap_genelist1.csv"), header = F, sep=" ", stringsAsFactors = F)
+gene.list2 = read.table(file.path(Danny_dir, "heatmap_genelist2.csv"), header = F, sep=" ", stringsAsFactors = F)
+gene.list3 = read.table(file.path(Danny_dir, "heatmap_genelist3.csv"), header = F, sep=" ", stringsAsFactors = F)
+gene.list = list(GeneList1 = gene.list1[,1], GeneList2 = gene.list2[,1])
+vsd.danny.wo0.labeled = vsd.danny.wo0
+colnames(vsd.danny.wo0.labeled) = Danny.Stype$SampleID[match(colnames(vsd.danny.wo0), Danny.Stype$ID)]
+
+label.order = c("MDA MB 231-1", "MDA MB 231-2", "MDA MB 231-3", "MDA MB 231-DD-1", "MDA MB 231-DD-2","MDA MB 231-DD-3",
+                "1833-1", "1833-2", "1833-3", "1833-shp27-1", "1833-shp27-2", "1833-shp27-3")
+re.order = match(label.order, colnames(vsd.danny.wo0.labeled))
+heatmap.vsd.danny = vsd.danny.wo0.labeled[, re.order]
+
+DE_MDA = read.csv(file.path(Danny_dir, "Result/Danny_2016-10-11/MDA MB 231-DDvsMDA MB 231.csv"), check.names = F)
+mdata.MDA = merge(heatmap.vsd.danny, DE_MDA[, c("gene_id", "log2FoldChange")], by.x="row.names",
+                  by.y="gene_id", sort=F, all.x=T)
+rownames(mdata.MDA) = mdata.MDA$Row.names
+
+match(gene.list3[,1], rownames(mdata.MDA))
+# output heatmap
+heatmap_gene_list_noclustering(mdata.MDA[,-c(1,ncol(mdata.MDA))], gene.list, mdata.MDA$log2FoldChange, direct = F, Out_dir)
+heatmap_gene_list_noclustering(mdata.MDA[,-c(1,ncol(mdata.MDA))], list(GeneList3 = gene.list3[,1]), mdata.MDA$log2FoldChange, direct = F, Out_dir)
+```
+
+
+## calculate FPKM from count
+
+```{r, eval=TRUE}
+# use code from RNAseq_huishi.R
+# merge raw count table
+# read RSEM file
+# merge raw count table
+merge_rsem = function(DATA_dir, file_pattern, subtract_pattern = NULL, norm_method=c("FPKM", "TPM")){
+    File_name = dir(DATA_dir)
+    File_name = grep(file_pattern, File_name, value=T)
+    norm_method = norm_method[1]
+    if(!is.null(subtract_pattern)){
+        File_name = File_name[!grepl(subtract_pattern, File_name)]
+    }
+    for(i in 1:length(File_name)){
+        Temp_table = read.table(paste0(DATA_dir,"/",File_name[i]), header=T)
+        if(norm_method=="FPKM"){
+            Temp_table = Temp_table[,c(1,7)]
+        }else if(norm_method=="TPM"){
+            Temp_table = Temp_table[,c(1,6)]
+        }
+        colnames(Temp_table)[2] = gsub(file_pattern, "", File_name[i])
+        colnames(Temp_table)[2] = gsub("__STAR", "", colnames(Temp_table)[2])
+        if(i == 1){
+            Table_merged = Temp_table
+        }else{
+            Table_merged = merge(Table_merged, Temp_table, by = "gene_id", sort = F)
+        }
+    }
+    #sample_name = gsub(".*-(.*)_S.*","\\1", File_name)
+    #sample_name = gsub(".count", "", File_name)
+    rownames(Table_merged) = Table_merged[,"gene_id"]
+    Table_merged[,"gene_id"] = NULL
+    #names(Table_merged) = File_name
+    Table_merged
+}
+fpkm.Sri = merge_rsem(rsem_dir, ".genes.results")
+
+m.1 = match(Sri.Stype$ID2, colnames(fpkm.Sri))
+colnames(fpkm.Sri) = paste(Sri.Stype$SampleID[m.1], Sri.Stype$ID2[m.1], sep = ".")
+
+fpkm.Sri.anno = merge(table_hs38ID, fpkm.Sri, by.x = "ensembl_gene_id", by.y =row.names, sort=F)
+
+write.csv(fpkm.Sri, file.path(Sri_dir, "Result/Sri_2016-10-19", "expression.fpkm.csv"), row.names=T)
+write.csv(fpkm.Sri.anno, file.path(Sri_dir, "Result/Sri_2016-10-19", "expr.anno.fpkm.csv"), row.names=T)
+
+```
+
+### Venn-Diagram
+
+```{r}
+DE_2_venn = function(DE_dir, DE_file1, DE_file2, DE_file3 = NULL, cutoff=c(0.05, 0.25), sep_direction=T,
+                     out_dir, out_prefix="venndiag"){
+    cat("Cutoff for significance: p value=", cutoff[1], "adjusted p value=", cutoff[2], "\n")
+    require(VennDiagram)  
+    DE.name.1 = gsub(".txt", "", DE_file1)
+    DE.name.2 = gsub(".txt", "", DE_file2)
+    DE.name.1 = gsub(".xls", "", DE.name.1)
+    DE.name.2 = gsub(".xls", "", DE.name.2)
+    DE.name.1 = gsub(".csv", "", DE.name.1)
+    DE.name.2 = gsub(".csv", "", DE.name.2)
+    
+    DE_tab.1 = read.table(file.path(DE_dir, DE_file1), check.names = F, header = T) 
+    DE_tab.2 = read.table(file.path(DE_dir, DE_file2), check.names = F, header = T) 
+    if(sep_direction){
+        DE_tab.1.up = DE_tab.1[DE_tab.1$log2FoldChange>=0, ]
+        DE_tab.2.up = DE_tab.2[DE_tab.2$log2FoldChange>=0, ]
+        DE_tab.1.dn = DE_tab.1[DE_tab.1$log2FoldChange<0, ]
+        DE_tab.2.dn = DE_tab.2[DE_tab.2$log2FoldChange<0, ]
+        DE.list.1.up = as.character(DE_tab.1.up$gene_id[which(DE_tab.1.up$padj<cutoff[2]&
+                                                                  DE_tab.1.up$pvalue<cutoff[1])])
+        DE.list.2.up = as.character(DE_tab.2.up$gene_id[which(DE_tab.2.up$padj<cutoff[2]&
+                                                                  DE_tab.2.up$pvalue<cutoff[1])])
+        DE.list.1.dn = as.character(DE_tab.1.dn$gene_id[which(DE_tab.1.dn$padj<cutoff[2]&
+                                                                  DE_tab.1.dn$pvalue<cutoff[1])])
+        DE.list.2.dn = as.character(DE_tab.2.dn$gene_id[which(DE_tab.2.dn$padj<cutoff[2]&
+                                                                  DE_tab.2.dn$pvalue<cutoff[1])])
+        write.table(data.frame(DE.list.1.up), file = paste0(out_dir,"/DE.gene.", DE.name.1,".up.txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        write.table(data.frame(DE.list.2.up), file = paste0(out_dir,"/DE.gene.", DE.name.2,".up.txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        write.table(data.frame(DE.list.1.dn), file = paste0(out_dir,"/DE.gene.", DE.name.1,".dn.txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        write.table(data.frame(DE.list.2.dn), file = paste0(out_dir,"/DE.gene.", DE.name.2,".dn.txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        
+    }else{
+        DE.list.1 = as.character(DE_tab.1$gene_id[which(DE_tab.1$padj<cutoff[2]&DE_tab.1$pvalue<cutoff[1])])
+        DE.list.2 = as.character(DE_tab.2$gene_id[which(DE_tab.2$padj<cutoff[2]&DE_tab.2$pvalue<cutoff[1])])
+        write.table(data.frame(DE.list.1), file = paste0(out_dir,"/DE.gene.", DE.name.1,".txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        write.table(data.frame(DE.list.2), file = paste0(out_dir,"/DE.gene.", DE.name.2,".txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+        write.table(data.frame(intersect(DE.list.1,DE.list.2)), file = paste0(out_dir,"/DE.gene.common",DE.name.1,"_",DE.name.2,".txt"), 
+                    row.names=F, col.names = F, sep = "\t", quote=F)
+    }
+    
+    # if input has three areas
+    DE_tab.3 = NULL
+    DE.list.3 = NULL
+    DE_tab.3.up = NULL
+    DE.list.3.up = NULL
+    DE_tab.3.dn = NULL
+    DE.list.3.dn = NULL
+    DE.name.3 = NULL
+    if(!is.null(DE_file3)){
+        cat("Three intersected areas, overlap significance test is not performed!\n")
+        DE.name.3 = gsub(".txt", "", DE_file3)
+        DE.name.3 = gsub(".xls", "", DE.name.3)
+        DE.name.3 = gsub(".csv", "", DE.name.3)
+        DE_tab.3 = read.table(file.path(DE_dir, DE_file3), check.names = F, header = T) 
+        if(sep_direction){
+            DE_tab.3.up = DE_tab.3[DE_tab.3$log2FoldChange>=0, ]
+            DE_tab.3.dn = DE_tab.3[DE_tab.3$log2FoldChange<0, ]
+            DE.list.3.up = as.character(DE_tab.3.up$gene_id[which(DE_tab.3.up$padj<cutoff[2]&
+                                                                      DE_tab.3.up$pvalue<cutoff[1])])
+            DE.list.3.dn = as.character(DE_tab.3.dn$gene_id[which(DE_tab.3.dn$padj<cutoff[2]&
+                                                                      DE_tab.3.dn$pvalue<cutoff[1])])
+            write.table(data.frame(DE.list.3.up), file = paste0(out_dir,"/DE.gene.", DE.name.3,".up.txt"), row.names=F,
+                        col.names = F, sep = "\t", quote=F)
+            write.table(data.frame(DE.list.3.dn), file = paste0(out_dir,"/DE.gene.", DE.name.3,".dn.txt"), row.names=F,
+                        col.names = F, sep = "\t", quote=F)      
+        }else{
+            DE.list.3 = as.character(DE_tab.3$gene_id[which(DE_tab.3$padj<cutoff[2]&DE_tab.3$pvalue<cutoff[1])])
+            write.table(data.frame(DE.list.3), file = paste0(out_dir,"/DE.gene.", DE.name.3,".txt"), row.names=F,
+                        col.names = F, sep = "\t", quote=F)
+            write.table(data.frame(intersect(DE.list.1,DE.list.2,DE.list.3)), file =
+                            paste0(out_dir,"/DE.gene.common",DE.name.1,"_",DE.name.2,"_", DE.name.3, ".txt"), 
+                        row.names=F, col.names = F, sep = "\t", quote=F)
+        }
+    }
+    
+    # draw venndiagram based on prepared lists
+    if(sep_direction){
+        draw_DE_venny(DE_tab.1.up, DE_tab.2.up, DE_tab.3 = DE_tab.3.up, DE.list.1.up, DE.list.2.up, 
+                      DE.list.3 = DE.list.3.up, DE.name.1, DE.name.2, DE.name.3, 
+                      cutoff=cutoff, out_dir=out_dir, out_prefix=paste0(out_prefix, "_upreg"),
+                      color = c("#D55E00", "#CC79A7", "#0072B2"))
+        draw_DE_venny(DE_tab.1.dn, DE_tab.2.dn, DE_tab.3 = DE_tab.3.dn, DE.list.1.dn, DE.list.2.dn, 
+                      DE.list.3 = DE.list.3.dn, DE.name.1, DE.name.2, DE.name.3, 
+                      cutoff=cutoff, out_dir=out_dir, out_prefix=paste0(out_prefix, "_dnreg"),
+                      color = c("#56B4E9", "#009E73", "#F0E442"))
+    }else{
+        draw_DE_venny(DE_tab.1, DE_tab.2, DE_tab.3 = DE_tab.3, DE.list.1, DE.list.2, DE.list.3 = DE.list.3,
+                      DE.name.1, DE.name.2, DE.name.3, cutoff=cutoff, out_dir=out_dir, out_prefix=out_prefix)
+    }
+}
+
+draw_DE_venny = function(DE_tab.1, DE_tab.2, DE_tab.3 = NULL, DE.list.1, DE.list.2, DE.list.3 = NULL,
+                         DE.name.1, DE.name.2, DE.name.3 = NULL, cutoff=c(0.05, 0.25), 
+                         out_dir, out_prefix="venndiag", color = c("#D55E00", "#CC79A7", "#0072B2")){
+    #
+    ext.dist = -0.2
+    if(!is.null(DE_tab.3)){
+        cat("Three intersected areas, overlap significance test is not performed!\n")
+        Temp.list = list(DE.list.1, DE.list.2, DE.list.3)
+        names(Temp.list) = c(DE.name.1, DE.name.2, DE.name.3)
+        alpha = c(0.5,0.5,0.5)
+        rotation.degree = 30
+        cex = 1.5
+        cat.cex = 1
+        sep.dist = 0.1
+        cat.pos = c(-30,30,60)
+        main = paste0("Overlapped DE genes with p<", cutoff[1], " and p.adj<", cutoff[2])
+    }else{
+        
+        #calculate Fisher.test for overlapping
+        gene.id.bg = union(DE_tab.1$gene_id, DE_tab.2$gene_id)
+        gid.common = intersect(DE.list.1, DE.list.2)
+        gid.1and2 = union(DE.list.1, DE.list.2)
+        cont.tb = rbind(c(length(gene.id.bg)-length(gid.1and2), length(DE.list.2)-length(gid.common)),
+                        c(length(DE.list.1)-length(gid.common), length(gid.common)))
+        rownames(cont.tb) = paste0(DE.name.1, c("_0", "_1"))
+        colnames(cont.tb) = paste0(DE.name.2, c("_0", "_1"))
+        print(cont.tb)
+        
+        fisher.rslt = fisher.test(cont.tb)
+        print(fisher.rslt)
+        
+        type_sgnf = ifelse(fisher.rslt$estimate>1, "overlapped", "distinct")
+        # settings
+        Temp.list = list(DE.list.1, DE.list.2)
+        names(Temp.list) = c(DE.name.1, DE.name.2)
+        alpha = c(0.5,0.5)
+        rotation.degree = 0
+        cex = 1.5
+        cat.cex = 1
+        sep.dist = 0.2
+        cat.pos = c(-30,30)
+        main = paste0("Overlapped DE genes with p<", cutoff[1], " and p.adj<", cutoff[2], "\n",
+                      "OR: ", round(fisher.rslt$estimate,2), ", p=", 
+                      format(fisher.rslt$p.value, digits=2, scientific=T), "\n",
+                      "Note: OR>1 suggests overlap is more than expected (Similar lists);
+                         OR<1 suggests the overlap is less than expected (Distinct lists)" 
+        )
+    }
+    
+    tmp_outputfile = paste0(out_dir, out_prefix, ".tiff")
+    #print(names(Temp.list))
+    #print(length(Temp.list[[1]]))
+    venn.diagram(Temp.list, tmp_outputfile, 
+                 main=main,
+                 fill = color[1:length(Temp.list)],
+                 cex = cex,
+                 cat.cex = cat.cex,
+                 cat.pos = cat.pos,
+                 alpha=alpha,
+                 ext.dist = ext.dist,
+                 sep.dist = sep.dist, rotation.degree = rotation.degree,
+                 euler.d = T,
+                 reverse = TRUE,
+                 overrideTriple="f")
+}
+
+DE_2_venn(DE_dir, "CvsB.xls", "YvsR.xls", DE_file3 = NULL,
+          cutoff=c(1, 0.01), sep_direction=T, out_dir=Out_dir, out_prefix="venn.DE")
+
+# get intersecting genes (on same direction)
+CvsB = read.table(file.path(DE_dir, Kevin_DE_file[1]), header = T, sep="\t", stringsAsFactors = F,
+                  check.names = F)
+YvsR = read.table(file.path(DE_dir, Kevin_DE_file[2]), header = T, sep="\t", stringsAsFactors = F,
+                  check.names = F)
+id.DE.CvsB = which(CvsB$padj<0.01)
+id.DE.YvsR = which(YvsR$padj<0.01)
+ens.gene.int = intersect(paste0(CvsB$ensembl_gene_id, ifelse(CvsB$log2FoldChange>0,"+","-"))[id.DE.CvsB], paste0(YvsR$ensembl_gene_id, ifelse(YvsR$log2FoldChange>0,"+","-"))[id.DE.YvsR])
+ens.gene.int = gsub("-", "", ens.gene.int)
+ens.gene.int = gsub("\\+", "", ens.gene.int)
+write.table(ens.gene.int, file.path(Out_dir, "genes.int.txt"), row.names=F, col.names=F,
+            sep="\t", quote=F)
+```

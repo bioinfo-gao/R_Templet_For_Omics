@@ -1,0 +1,278 @@
+=======================02-20==========================
+# https://blog.csdn.net/alifrank/article/details/48241699
+# https://www.zhihu.com/question/21402411
+ssh-keygen
+ssh-copy-id -i ~/.ssh/id_rsa bioinfo.gao@gmail.com
+
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/zxg161/.ssh/id_rsa.pub"  # take several minutes
+
+ssh -T git@github.com
+
+https://github.com/bli25broad/RSEM_tutorial
+
+cd ref wget ftp://ftp.ensembl.org/pub/release-82/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.toplevel.fa.gz
+
+
+sudo yum install perl-Env
+
+Rscript /data/ZG/Programs/job/QCreport_finalizer_ZG.R --fastqc_file=/data/ZG/RNA-seq/Josie/DATA/QC/QC_summary_output.txt --align_dir=/data/ZG/RNA-seq/Josie/DATA/Alignment/
+Rscript /data/ZG/Programs/job/RSEM_batch_ZG.R --indir=/data/ZG/RNA-seq/Josie2/Alignment/
+
+add the followin to $PATH in .bash_profile
+/data/ZG/RSEM/software/RSEM-1.2.25/ 
+
+##############===========  setp 1 ========###############
+/media/2T_Disk/Dropbox (BBSR)/Tool-Utility/tools/bash-toolsshorten_file_name.sh
+cd /data/ZG/RNA-seq/Josie/DATA]
+rename _001 '' *.gz   .
+
+##############===========  setp 2 ========###############
+python /data/ZG/Programs/job/BaseSpaceRunDownloader_v3.py -p 55754700 -a b5e5663f8ec8484e84d6bff0376f8fce -o /data/ZG/RNA-seq/Josie/
+
+
+
+######################################################################## rerun 02-20
+##############===========  setp 3 ========###############
+Rscript /data/ZG/Programs/job/QCwPreprocessing_BBSR.R --indir=/data/ZG/RNA-seq/Josie  # no /
+
+
+##############===========  setp 4 ========###############
+python /data/ZG/Programs/job/QcSum.py /data/ZG/RNA-seq/Josie/QC/
+
+
+##############===========  setp 5 ========###############
+Rscript /data/ZG/Programs/job/NGS_pip_rnaseq_ver.1.5_ZG6.R --indir=~/DATA_ZG/RNA-seq/Josie/DATA/Formatted    # ~/DATA_ZG  1.5 updated 2018-02-20
+
+2. no <==paired reads
+1. GRCh38(primary)
+1. STAR	
+1. gene-level
+1. unstranded
+1. none (default)       <======	additional featureCounts parameter:
+1. NexteraPE-PE.fa      <======Select adapter file for trimming:
+
+
+##############===========  setp 6 ========###############
+Rscript /data/ZG/Programs/job/QCreport_finalizer_ZG.R --fastqc_file=/data/ZG/RNA-seq/Josie/QC/QC_summary_output.txt --align_dir=/data/ZG/RNA-seq/Josie/DATA/Alignment/ --count_dir=/data/ZG/RNA-seq/Josie/DATA/Count/
+
+
+
+=======================02-19==========================
+
+Note, next time, all data should be directly under ~/DATA_ZG/RNA-seq/Josie
+##############===========  setp 1 ========###############
+/media/2T_Disk/Dropbox (BBSR)/Tool-Utility/tools/bash-toolsshorten_file_name.sh
+cd /data/ZG/RNA-seq/Josie/DATA]
+rename _001 '' *.gz   .
+
+##############===========  setp 2 ========###############
+# python /nethome/yxb173/job/BaseSpaceRunDownloader_v3.py -p 33010017 -a b5e5663f8ec8484e84d6bff0376f8fce -o /projects/scratch/bbc/Project/Project_name/DATA
+python /data/ZG/Programs/job/BaseSpaceRunDownloader_v3.py -p 55754700 -a b5e5663f8ec8484e84d6bff0376f8fce -o /data/ZG/RNA-seq/Josie/DATA
+
+
+##############===========  setp 3 ========###############
+# Rscript /nethome/yxb173/job/QCwPreprocessing.R --indir=/projects/scratch/bbc/Project/SRP035646/DATA/
+# Rscript /data/ZG/Programs/job/QCwPreprocessing.R --indir=/data/ZG/RNA-seq/Josie/DATA/
+# Rscript /data/ZG/Programs/job/QCwPreprocessing_ZG.R --indir=/data/ZG/RNA-seq/Josie/DATA
+
+Rscript /data/ZG/Programs/job/QCwPreprocessing_BBSR.R --indir=/data/ZG/RNA-seq/Josie/DATA
+
+
+##############===========  setp 4 ========###############
+python /data/ZG/Programs/job/QcSum.py /data/ZG/RNA-seq/Josie/DATA/QC/
+
+
+##############===========  setp 5 ========###############
+Rscript /data/ZG/Programs/job/NGS_pip_rnaseq_ver.1.5_ZG4.R --indir=~/DATA_ZG/RNA-seq/Josie/DATA/DATA/Formatted    # ~/DATA_ZG  1.4 updated 2018-02-19
+
+2. no <==paired reads
+1. GRCh38(primary)
+1. STAR	
+1. gene-level
+1. unstranded
+1. none (default)       <======	additional featureCounts parameter:
+1. NexteraPE-PE.fa <======Select adapter file for trimming:
+
+RSEM rum sucessfully under conda base envrioment
+
+##############===========  setp 6 ========###############
+Rscript /data/ZG/Programs/job/QCreport_finalizer_ZG.R --fastqc_file=/data/ZG/RNA-seq/Josie/DATA/QC/QC_summary_output.txt --align_dir=/data/ZG/RNA-seq/Josie/Alignment/ --count_dir=/data/ZG/RNA-seq/Josie/Count/
+
+
+cannot open file '/data/ZG/RNA-seq/Josie/DATA/Alignment/NA/QC_summary_final.txt': No such file or directory
+
+# temp final report in josie/DATA/Alignment
+
+### Malke D7 RNA-seq data
+
+##############===========  setp 0 ========###############
+# python /nethome/yxb173/job/BaseSpaceRunDownloader_v3.py -p 33010017 -a b5e5663f8ec8484e84d6bff0376f8fce -o /projects/scratch/bbc/Project/Project_name/DATA
+python /data/ZG/Programs/job/BaseSpaceRunDownloader_v3.py -p 55754700 -a b5e5663f8ec8484e84d6bff0376f8fce -o /data/ZG/RNA-seq/Josie/DATA
+
+##############===========  setp 1 ========###############
+/media/2T_Disk/Dropbox (BBSR)/Tool-Utility/tools/bash-toolsshorten_file_name.sh
+cd /data/ZG/RNA-seq/Josie/DATA]
+rename _001 '' *.gz   .
+
+##############===========  setp 2 ========###############
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-01/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-02/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-03/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-04/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-05/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-06/Files
+cd /data/ZG/RNA-seq/Malak_D7_mouse/2018-10-30-Alejandro-Moro/Samples/2018-10-30-Alejandro-Moro-08/Files
+
+find .  | grep '.fastq$' | xargs -I {} mv {} /data/ZG/RNA-seq/Malak_D7_mouse/fastq-DATA
+
+
+##############===========  setp 3 ========###############
+# Rscript /nethome/yxb173/job/QCwPreprocessing.R --indir=/projects/scratch/bbc/Project/SRP035646/DATA/
+# Rscript /data/ZG/Programs/job/QCwPreprocessing.R --indir=/data/ZG/RNA-seq/Josie/DATA/
+# Rscript /data/ZG/Programs/job/QCwPreprocessing_ZG.R --indir=/data/ZG/RNA-seq/Josie/DATA
+
+Rscript   /data/ZG/Programs/job/QCwPreprocessing_BBSR.R --indir=/data/ZG/RNA-seq/Malak_D7_mouse/fastq-DATA
+
+
+##############===========  setp 4 ========###############
+python /data/ZG/Programs/job/QcSum.py /data/ZG/RNA-seq/Malak_D7_mouse/fastq-DATA/QC/
+
+
+##############===========  setp 5 ========###############
+mv fastq-DATA/ DATA/   # the name cannot changed 2019-02-19
+Rscript /data/ZG/Programs/job/NGS_pip_rnaseq_ver.1.5_ZG4.R --indir=~/DATA_ZG/RNA-seq/Malak_D7_mouse/DATA/DATA/Formatted    # ~/DATA_ZG
+
+
+
+
+1. yes   <== paired reads
+4. GRCm38(primary)
+1. STAR	
+1. gene-level
+1. unstranded
+1. none (default)       <======	additional featureCounts parameter:
+1. NexteraPE-PE.fa <======Select adapter file for trimming:
+
+
+
+##############===========  setp 6 ========###############
+Rscript /data/ZG/Programs/job/QCreport_finalizer_ZG.R --fastqc_file=/data/ZG/RNA-seq/Malak_D7_mouse/DATA/QC/QC_summary_output.txt --align_dir=/data/ZG/RNA-seq/Malak_D7_mouse/DATA/Alignment/ --count_dir=/data/ZG/RNA-seq/Malak_D7_mouse/DATA/Count/
+
+
+# temp final report in josie/DATA/Alignment
+
+
+
+
+cat 2017-12-04-01_S4_R1.txt
+
+java -jar -Xmx512m /data/apps/trimmomatic/0.32/trimmomatic-0.32.jar SE -threads 56 ~/DATA_ZG/RNA-seq/Josie/DATA/Formatted/2017-12-04-01_S4_R1.fastq ~/DATA_ZG/RNA-seq/Josie/DATA/Trimmed_data/trimmed_2017-12-04-01_S4_R1R1.fastq ILLUMINACLIP:/data/apps/trimmomatic/0.32/adapters/NexteraPE-PE.fa:2:30:10 LEADING:1 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:20 
+
+/data/ZG/Programs/Softwares/STAR-2.5.0b/bin/Linux_x86_64/STAR --outSAMstrandField intronMotif --runThreadN 32 --sjdbGTFfile /data/Genome_Ref/Homo_sapiens/GRCh38/Annotation/gencode.v27.annotation.gtf --outFileNamePrefix ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_ --genomeDir /data/Genome_Ref/Homo_sapiens/GRCh38/STARIndex_main/ --readFilesIn ~/DATA_ZG/RNA-seq/Josie/DATA/Trimmed_data/trimmed_2017-12-04-01_S4_R1R1.fastq  --alignEndsType Local --genomeLoad NoSharedMemory --quantMode TranscriptomeSAM --limitOutSJcollapsed 1000000 --limitSjdbInsertNsj 1000000 --outFilterMultimapNmax 100 --outFilterMismatchNmax 33 --outFilterMismatchNoverLmax 0.3 --seedSearchStartLmax 12 --alignSJoverhangMin 15 --outFilterMatchNminOverLread 0 --outFilterScoreMinOverLread 0.3 --winAnchorMultimapNmax 50 --alignSJDBoverhangMin 3 --outFilterType BySJout --outReadsUnmapped Fastx 
+
+samtools view -bS -@ 32 ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.out.sam | samtools sort -@ 32 -T ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/tmp -o ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_out.sorted.bam 
+
+samtools index ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_out.sorted.bam 
+
+samtools view -bh ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_out.sorted.bam chr18:46080248-46104334 > ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/ATP5A1.bam 
+
+python /data/ZG/Programs/job/NGSpipe_detect_strandwBAM.py ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/ATP5A1.bam ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/ATP5A1.txt 
+
+/data/ZG/Programs/Softwares/subread-1.5.0-p1-Linux-x86_64/bin/featureCounts -T 32 -s 0    -g gene_id  -a /data/Genome_Ref/Homo_sapiens/GRCh38/Annotation/gencode.v27.annotation.gtf  -o ~/DATA_ZG/RNA-seq/Josie/Count/STAR_2017-12-04-01_S4_R1.count ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_out.sorted.bam 
+
+/data/ZG/RSEM/software/RSEM-1.2.25/rsem-calculate-expression -p 32  --no-bam-output --alignments ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1 
+
+
+
+
+rsem-calculate-expression -p 32  --no-bam-output --alignments ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1 
+This one runs correct in conda enviroment
+
+
+└── RSEM
+    ├── 2017-12-04-01_S4_R1.stat
+    └── 2017-12-04-01_S4_R1.temp
+        ├── 2017-12-04-01_S4_R1_alignable.fq
+        ├── 2017-12-04-01_S4_R1.bam
+        ├── 2017-12-04-01_S4_R1.dat
+        ├── 2017-12-04-01_S4_R1_max.fq
+        ├── 2017-12-04-01_S4_R1.omit
+        └── 2017-12-04-01_S4_R1_un.fq
+
+
+
+
+
+
+
+/data/ZG/RSEM/software/RSEM-1.2.25/rsem-calculate-expression -p 32  --no-bam-output  ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1 
+
+genomeCoverageBed -ibam ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_out.sorted.bam -bg -g /data/Genome_Ref/Homo_sapiens/GRCh38/WholeGenomeFasta/GRCh38.sgenome > ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.bdg 
+
+LC_COLLATE=C sort -k1,1 -k2,2n ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.bdg > ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.sorted.bdg 
+
+/data/ZG/Programs/Softwares/bedGraphToBigWig ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.sorted.bdg /data/Genome_Ref/Homo_sapiens/GRCh38/WholeGenomeFasta/GRCh38.sgenome.headless ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.bw 
+
+rm ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.bdg ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/2017-12-04-01_S4_R1.sorted.bdg 
+
+
+
+rsem-calculate-expression --bowtie-path /sw/bowtie \
+                           --phred64-quals \
+                           --fragment-length-mean 150.0 \
+                           --fragment-length-sd 35.0 \
+                           -p 8 \
+                           --output-genome-bam \
+                           --calc-ci \
+                           --ci-memory 1024 \
+                           /data/mmliver.fq \
+                           /ref/mouse_125 \
+                           mmliver_single_quals
+
+
+
+/data/ZG/RSEM/software/RSEM-1.2.25/rsem-calculate-expression -p 32  
+                     --no-bam-output 
+                     --alignments ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam 
+                     /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 
+                     ~/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1 
+                     
+rsem-calculate-expression -p 8 --time --bam 
+                         --paired-end /home/peter/Documents/Files/Output/s_A/Aligned.sortedByCoord.out.bam 
+                         /home/peter/Documents/Files/STAR_Reference 
+                         s_A
+
+
+the --Alignment is WRONG!!
+
+/data/ZG/RSEM/software/RSEM-1.2.25/rsem-calculate-expression -p 32  --no-bam-output ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~/DATA_ZG/RNA-sie/RSEM/2017-12-04-01_S4_R1 
+bowtie -q --phred33-quals -n 2 -e 99999999 -l 25 -p 32 -a -m 200 -S /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 /home/zxg161/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam | samtools view -S -b -o /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1.bam -
+sh: bowtie: command not found
+samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory
+"bowtie -q --phred33-quals -n 2 -e 99999999 -l 25 -p 32 -a -m 200 -S /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 /home/zxg161/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam | samtools view -S -b -o /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1.bam -" failed! Plase check if you provide correct parameters/options for the pipeline!
+
+
+
+bowtie -q --phred33-quals -n 2 -e 99999999 -l 25 -p 32 -a -m 200 -S /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 /home/zxg161/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam | samtools view -S -b -o /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1.bam -
+samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory
+
+
+
+samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory
+
+cd ~/anaconda2/lib
+ln -s libcrypto.so.1.1  libcrypto.so.1.0.0
+ln -s libssl.so.1.1  libssl.so.1.0.0
+
+
+
+rsem-calculate-expression -p 32  --no-bam-output ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1 
+bowtie -q --phred33-quals -n 2 -e 99999999 -l 25 -p 32 -a -m 200 -S /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 /home/zxg161/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam | samtools view -S -b -o /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1.bam -
+sh: bowtie: command not found
+
+rsem-parse-alignments /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1 /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.stat/2017-12-04-01_S4_R1 b /home/zxg161/DATA_ZG/RNA-seq/Josie/RSEM/2017-12-04-01_S4_R1.temp/2017-12-04-01_S4_R1.bam -t 1 -tag XM
+rsem-parse-alignments : No such file or directory!
+Please check if you have compiled the associated codes by typing related "make" commands and/or made related executables ready to use.
+
+rsem-calculate-expression -p 32  --no-bam-output ~/DATA_ZG/RNA-seq/Josie/Alignment/2017-12-04-01_S4_R1_STAR/STAR_Aligned.toTranscriptome.out.bam /data/Genome_Ref/Homo_sapiens/GRCh38/RSEM_main_ref/gencode.v27 ~ZG/RNA-seq/RSEM/2017-12-04-01_S4_R1
+
