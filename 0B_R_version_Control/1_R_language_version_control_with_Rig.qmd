@@ -25,7 +25,7 @@ Quarto enables you to weave together content and executable code into a finished
 
 (base) PS C:\Users\zhen-\> rig available
 
-(base) PS C:\Users\zhen-\> rig available name version release date type
+name version release date type
 
 3.0.3 3.0.3 2014-03-06 release
 
@@ -35,13 +35,17 @@ Quarto enables you to weave together content and executable code into a finished
 
 4.5.2 4.5.2 2025-10-31 release
 
+.....
+
 devel 4.6.0 devel (base)
 
-3） **Rig 的杀手级功能：** 安装完多个版本后，当您启动 **RStudio 桌面版**时，按住 **`Ctrl`** 键不放并双击 RStudio 图标，RStudio 就会弹出一个菜单，让您选择这次启动要用哪个版本的 R。
-
-见截图
+3\) 安装指RR版本
 
 PS C:\Users\zhen-\> rig add 4.3.3
+
+4） **Rig 的杀手级功能：** 安装完多个版本后，当您启动 **RStudio 桌面版**时，按住 **`Ctrl`** 键不放并双击 RStudio 图标，RStudio 就会弹出一个菜单，让您选择这次启动要用哪个版本的 R。
+
+见截图 (Rig.png)
 
 ## Running Code
 
