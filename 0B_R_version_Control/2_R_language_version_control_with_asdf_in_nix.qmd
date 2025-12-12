@@ -1,0 +1,24 @@
+---
+title: "R_language_version_with_Rig"
+author: "Zhen Gao"
+format: html
+editor: visual
+---
+
+### 1） 理论上asdf 可以在linux ， macos , windows-WSL 等 nix 系统上管理一切软件的版本问题
+
+`asdf` 是一个工具版本管理器。所有的工具版本定义都包含在一个文件（`.tool-versions`）中，你可以将配置文件放在项目的 Git 存储库中以便于和团队其他成员共享，从而确保每个人都使用**完全**相同的工具版本。
+
+<https://asdf-vm.com/zh-hans/guide/introduction.html>
+
+<https://www.cnblogs.com/chdxia/p/16405970.html>
+
+不同版本的语言环境时，那么python的pyenv，js的nvm，go的gvm，ruby的rvm，java的sdkman等等都是比较舒服的版本管理工具。如果你用的是macos或者linux，恭喜你，我们不再需要每个语言都安装一个版本管理工具，一个asdf就足够贴到框里即可：
+
+但实际上，在WSL 上实验 3个小时为成功
+
+除了在OracleLinux_9_5 装上了 R 4.3.3
+
+注在Window11 的conda 环境下， 和 WSL 的 Oracle linux 下都是通过 positron . 启动positron
+
+code . 启动的是 vscode

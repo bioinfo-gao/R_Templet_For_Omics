@@ -71,3 +71,13 @@ R.version.string
 2 * 2
 sessionInfo()
 ```
+
+### 4. 推荐：使用快捷键插入（一劳永逸）
+
+为了避免手打格式出错，建议直接使用 RStudio 的快捷键来插入代码块，系统会自动帮你处理好格式：
+
+-   **Windows / Linux**: Ctrl + Alt + I
+
+-   **Mac**: Cmd + Option + I
+
+按下快捷键后，你会看到一个灰色的框，把你的代码粘贴到框里即可：
