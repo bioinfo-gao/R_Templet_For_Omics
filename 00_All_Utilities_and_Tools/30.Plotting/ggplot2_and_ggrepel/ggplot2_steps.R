@@ -6,8 +6,7 @@ install.packages("httpgd",dependencies = TRUE)
 # library(httpgd)
 # httpgd::hgd()
 
-#library(dplyr)
-
+library(dplyr)
 library(ggplot2)
 library(ggrepel)
 library(gapminder)

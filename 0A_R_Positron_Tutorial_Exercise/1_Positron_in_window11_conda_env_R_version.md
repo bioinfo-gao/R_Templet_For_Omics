@@ -1,3 +1,7 @@
+# postitron 对 window conda 中的R检查极差，应该用linux，WSL， MAC均可
+
+左侧有一个电脑和>< 标志，可以连接WSL 或者远程 server
+
 # ======================(A)
 Only in the cmd (choose the Command Prompt )
 (1) "R" and "R --version" can start
@@ -6,12 +10,14 @@ Only in the cmd (choose the Command Prompt )
 in Powersehll,
 (1) "R" or "r" 是 PowerShell 的内置别名，用于调用命令历史.  AND "R" or "R --version" has no reponse
 (2) "positron ." produce show error message
+(3) R.exe can run R
 
 # ======================(B)
 Current activate within Conda 
 
 Positon App works with different Python very well
 Positon cannnot detect conda R at all, only the system R 4.5.1 are activated everytime
+Another system 4.3.3can be activate automatically 
 
 
 
