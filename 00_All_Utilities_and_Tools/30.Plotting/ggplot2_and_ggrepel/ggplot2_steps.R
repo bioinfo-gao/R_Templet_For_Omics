@@ -26,6 +26,10 @@ mtcars$cyl_f <- factor(mtcars$cyl) # 将气缸数       转为因子（离散变
 mtcars$am <- factor(mtcars$am)     # 将transmission 转为因子（离散变量） 
 mtcars
 
+
+library(httpgd)
+httpgd::hgd(token = "GZ1008")
+
 ggplot(data = mtcars, 
        aes(x = wt, y = mpg,
            color = cyl_f,   # 映射：颜色由气缸数决定
