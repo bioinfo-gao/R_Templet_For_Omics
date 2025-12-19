@@ -1,0 +1,87 @@
+---
+title: "R_language_version_with_Rig"
+author: "Zhen Gao"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+### 1） 下载安装Rig
+
+这是 `Rig` 的官方 GitHub 发布页面，直接下载 `.exe` 文件安装即可。
+
+1.  **访问链接：** <https://github.com/r-lib/rig/releases>
+
+2.  **下载文件：** 在最新的 **Latest** 版本下，找到 **Assets** 列表，下载名为 **`rig-windows-latest.exe`** (或者类似 `Rig-x.y.z.exe`) 的文件。
+
+3.  **安装：** 双击下载的 `.exe` 文件，一路点击 "Next" 完成安装。
+
+安装完成后，您就可以在 **PowerShell** 中使用 `rig` 命令了。
+
+2\) 显示可安装 R版本
+
+(base) PS C:\Users\zhen-\> rig available
+
+name version release date type
+
+3.0.3 3.0.3 2014-03-06 release
+
+3.1.3 3.1.3 2015-03-09 release
+
+4.3.3 4.3.3 2024-02-29 release
+
+4.5.2 4.5.2 2025-10-31 release
+
+.....
+
+devel 4.6.0 devel (base)
+
+3\) 安装指RR版本
+
+PS C:\Users\zhen-\> rig add 4.3.3
+
+4） **Rig 的杀手级功能：** 安装完多个版本后，当您启动 **RStudio 桌面版**时，按住 **`Ctrl`** 键不放并双击 RStudio 图标，RStudio 就会弹出一个菜单，让您选择这次启动要用哪个版本的 R。
+
+见截图 (Rig.png)
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+
+
+version # show all os and language verion
+```
+
+注意，从网页或者外部copy 过来的chuck 可能格式并不对 1）顶格开始写`2) 不能有其他字符 我拷贝过来的"`"， 但点击左上角 source 后 格式下检查实际上是 "\`\`\`"， 所以已经在source 下编辑， 而不是visual 下编辑
+
+```{r}
+
+# library(ggplot2)
+# 
+# ggplot(airquality, aes(Temp, Ozone)) +
+# geom_point() +
+# geom_smooth(method = "loess")
+R.version.string
+```
+
+```{r}
+#| echo: false # 这段code在最终文档中不显示，只显示运行结果和图片
+2 * 2
+sessionInfo()
+```
+
+### 4. 推荐：使用快捷键插入（一劳永逸）
+
+为了避免手打格式出错，建议直接使用 RStudio 的快捷键来插入代码块，系统会自动帮你处理好格式：
+
+-   **Windows / Linux**: Ctrl + Alt + I
+
+-   **Mac**: Cmd + Option + I
+
+按下快捷键后，你会看到一个灰色的框，把你的代码粘贴到框里即可：
