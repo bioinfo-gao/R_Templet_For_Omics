@@ -5,7 +5,7 @@ x
 #?UCBAdmissions
 library(httpgd)
 hgd()
-#plot(1:10
+#plot(1:10)
 str(UCBAdmissions)
 UCBAdmissions
 dim(UCBAdmissions)
