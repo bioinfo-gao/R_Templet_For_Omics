@@ -1,17 +1,18 @@
-install.packages("ggplot2")
-install.packages("dplyr")   
-install.packages("ggrepel")
-install.packages("gapminder")
-install.packages("httpgd")
-library(httpgd)
-httpgd::hgd()
+#install.packages("dplyr",dependencies = TRUE)       
+install.packages("ggplot2",dependencies = TRUE          )
+install.packages("ggrepel",dependencies = TRUE)
+install.packages("gapminder",dependencies = TRUE)
+install.packages("httpgd",dependencies = TRUE)
+# library(httpgd)
+# httpgd::hgd()
+
+#library(dplyr)
 
 library(ggplot2)
-library(dplyr)
 library(ggrepel)
 library(gapminder)
-library(httpgd)
-httpgd::hgd()
+# library(httpgd)
+# httpgd::hgd()
             
 # 1. 美学 (Aesthetics) Basic 
 # color	离散（分类）或连续	点/线的颜色
