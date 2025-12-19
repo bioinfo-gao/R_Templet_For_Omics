@@ -65,3 +65,4 @@ qcorrplot(correlate(varechem), type="lower", diag = FALSE) +  # 下三角,无对
 
 
 
+
