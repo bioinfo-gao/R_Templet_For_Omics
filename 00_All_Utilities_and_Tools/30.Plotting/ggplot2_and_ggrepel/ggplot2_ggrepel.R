@@ -1,14 +1,16 @@
 # 1. 安装包（如果这是你第一次使用它们）
 # install.packages("ggplot2")
-# install.packages("ggrepel")
+install.packages("ggrepel")
 # install.packages("dplyr")
-# install.packages("gapminder")
-
+install.packages("gapminder")
+install.packages("httpgd")
 # 2. 加载这些包
 library(ggplot2)
 library(ggrepel)
 library(dplyr)
 library(gapminder)
+library(httpgd)
+httpgd::hgd()
 
 # 1. 查看 gapminder 数据的结构
 str(gapminder)
@@ -26,6 +28,7 @@ data_2007 <- filter(gapminder, year == 2007)
 
 # 3. 查看筛选后的数据
 head(data_2007)
+
 #       country continent year lifeExp      pop gdpPercap
 # 1 Afghanistan      Asia 2007  43.828 31889923   974.5803
 # 2     Albania    Europe 2007  76.423  3600523  5937.0295

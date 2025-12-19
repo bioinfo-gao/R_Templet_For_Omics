@@ -1,0 +1,2 @@
+install.packages("httpgd")
+install.packages("languageserver") # 建议同时安装，用于增强代码提示

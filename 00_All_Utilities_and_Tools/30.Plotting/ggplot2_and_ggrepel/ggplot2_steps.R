@@ -1,6 +1,18 @@
+install.packages("ggplot2")
+install.packages("dplyr")   
+install.packages("ggrepel")
+install.packages("gapminder")
+install.packages("httpgd")
+library(httpgd)
+httpgd::hgd()
+
 library(ggplot2)
 library(dplyr)
-
+library(ggrepel)
+library(gapminder)
+library(httpgd)
+httpgd::hgd()
+            
 # 1. 美学 (Aesthetics) Basic 
 # color	离散（分类）或连续	点/线的颜色
 # fill	离散（分类）或连续	区域的填充颜色（如条形图）
