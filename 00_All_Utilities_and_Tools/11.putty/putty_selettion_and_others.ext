@@ -1,3 +1,10 @@
+在已链接的窗口中点击顶部条，
+右键点击change setting
+点击window
+点击selection
+
+然后看截图
+
 你的 PuTTY 配置中核心功能被关闭了。要解决“左键选中不拷贝”以及“无法用快捷键拷贝”的问题，请按以下步骤勾选：
 1. 核心必选：勾选“选中即拷贝”
 在你的截图中间部分，找到 Assign copy/paste actions to clipboards 区域：
