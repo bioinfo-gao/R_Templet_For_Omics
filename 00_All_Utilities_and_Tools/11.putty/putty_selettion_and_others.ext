@@ -1,0 +1,33 @@
+你的 PuTTY 配置中核心功能被关闭了。要解决“左键选中不拷贝”以及“无法用快捷键拷贝”的问题，请按以下步骤勾选：
+1. 核心必选：勾选“选中即拷贝”
+在你的截图中间部分，找到 Assign copy/paste actions to clipboards 区域：
+必须勾选： Auto-copy selected text to system clipboard[1][2]
+原因： 你的截图中这个选项是空的。如果不勾选它，你在 PuTTY 里不管怎么选文字，它都不会进入 Windows 的剪贴板，这就是你之前在记事本粘贴不出内容的最直接原因。
+2. 强烈建议：开启快捷键
+在同一区域下方，找到 Ctrl + Shift + {C,V}：
+修改为： System clipboard（你现在的设置是 No action）。
+效果： 这样你就可以像使用 Chrome 浏览器或 VS Code 一样，用 Ctrl + Shift + C 进行拷贝，用 Ctrl + Shift + V 进行粘贴了。这是目前终端最主流、最不冲突的快捷键方案。
+3. 其他保持现状即可
+Action of mouse buttons：维持 Compromise 没问题。这代表：左键拖动=选择/拷贝，右键=粘贴。[1][3]
+Shift overrides application's use of mouse：维持勾选。这能保证你在用 vim 或 htop 时，按住 Shift 依然能强制拷贝文字。
+修改后的操作总结（非常重要）：
+勾选 Auto-copy selected text to system clipboard。[1]
+将 Ctrl + Shift + {C,V} 设为 System clipboard。[4]
+点击下方的 Apply 按钮（这仅对当前窗口生效）。
+如何永久保存（防止下次打开又失效）：
+如果你希望以后所有连接都生效，不能只点 Apply：
+在左侧菜单点击最顶部的 Session。[5]
+在右侧列表选中 Default Settings。
+点击 Save。[5][6][7]
+现在去试试： 勾选完那个 Auto-copy 之后，在 PuTTY 里随便划选一段文字，然后直接去 AI Studio 页面 Ctrl + V 粘贴，应该就能成功了！
+
+
+shift + select a area, then right click, then the copy and paste all come out
+
+docker run -d \
+  --name rstudio_42 \
+  -p 8788:8787 \
+  -e PASSWORD=gao \
+  -v /home/gao:/home/rstudio \
+  rocker/rstudio:4.2.1    # 这个就是自动下载 不是4.2.2
+docker: Error response from daemon: Conflict. The container name "/rstudio_42" is already in use by container "2246bf8fdd22881b5ee3869db83f52a9b07ed6de7d415d379b9ae0b574fb754c". You have to remove (or rename) that container to be able to reuse that name.
