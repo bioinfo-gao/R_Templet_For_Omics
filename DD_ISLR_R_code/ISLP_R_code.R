@@ -1,5 +1,6 @@
-# Chapter 2 Lab: Introduction to R
+# https://trevorhastie.github.io/ISLR/code.html
 
+# Chapter 2 Lab: Introduction to R
 # Basic Commands
 
 x <- c(1,3,2,5)
@@ -14,6 +15,7 @@ ls()
 rm(x,y)
 ls()
 rm(list=ls())
+
 ?matrix
 x=matrix(data=c(1,2,3,4), nrow=2, ncol=2)
 x
