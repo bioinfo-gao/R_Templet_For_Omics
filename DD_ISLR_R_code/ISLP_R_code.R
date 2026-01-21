@@ -27,6 +27,7 @@ x^2
 x=rnorm(50)
 y=x+rnorm(50,mean=50,sd=.1)
 cor(x,y)
+
 set.seed(1303)
 rnorm(50)
 set.seed(3)
@@ -36,8 +37,17 @@ var(y)
 sqrt(var(y))
 sd(y)
 
-# Graphics
+set.seed(31)
+y=rnorm(100)
+mean(y)
+var(y)
+sqrt(var(y))
+sd(y)
 
+?sd  # Like var this uses denominator n−1.
+
+
+# Graphics
 x=rnorm(100)
 y=rnorm(100)
 plot(x,y)
