@@ -43,12 +43,17 @@ cor(x, y)
 set.seed(1303)
 rnorm(50)
 
-set.seed(3)
+#set.seed(3)
+set.seed(113)
 y <- rnorm(100)
+#y <- rnorm(3) #
+?rnorm
+y
 mean(y)
 var(y)
 sqrt(var(y))
-sd(y)
+sd(y) # 
+?sd # Like var, this uses denominator n−1
 
 # 2.3.2 Graphics
 
