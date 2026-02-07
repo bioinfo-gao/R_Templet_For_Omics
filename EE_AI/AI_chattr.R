@@ -1,5 +1,7 @@
 # https://www.youtube.com/watch?v=dxBR191Vc8A
+#install.packages("curl", dependencies = T)
 install.packages("chattr", dependencies = T)
+uninstall.packages("chattr")
 # At least in Windows, there is a popup show that "do you want to install the library need compilation" , I choose NO
 # there is a list of compilateion needed version and sereral not show in Rstudio
 #install.packages("chattr")
@@ -13,10 +15,8 @@ library(chattr)
 # 1) create an account
 # 2) setup payment method with limit
 # 3) create an API key
-# https://aistudio.google.com/app/api-keys
-# AIzaSyBxYqWisvdHA1sTN28mZrrRfFLg_92qsus
 
-#Sys.getenv("OPENAI_API_KEY")
+Sys.getenv("OPENAI_API_KEY")
 
 install.packages("usethis")
 # need click the popup in windows 
@@ -30,7 +30,6 @@ chattr_use("gpt41")
 # Open chat interface
 chattr()
 
-#   Submit a prompt directly
 
 
 chattr("How do I create a ggplot2 scatter plot?")
@@ -57,3 +56,13 @@ chattr_defaults()
 
 # Test the connection
 chattr_test()
+
+
+# Option 1: Provide a prompt directly
+#  chattr("How do I make a scatter plot with ggplot2?")
+# Option 2: Use the Interactive App (Recommended)
+library(chattr)
+chattr_app()
+
+
+chattr()

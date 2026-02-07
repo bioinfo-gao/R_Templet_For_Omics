@@ -30,7 +30,7 @@ x <- matrix(data = c(1,2,3,4), nrow = 2, ncol = 2)
 x
 
 x <- matrix(c(1, 2, 3, 4), 2, 2)
-
+x # default by column
 matrix(c(1, 2, 3, 4), 2, 2, byrow = TRUE)
 
 sqrt(x)
