@@ -4,7 +4,6 @@
 # Chapter 2: Statistical Learning
 
 # 2.3 Lab: Introduction to R
-
 # 2.3.1 Basic Commands
 
 x <- c(1, 3, 2, 5)
