@@ -108,14 +108,18 @@ dim(A)
 
 # 2.3.4 Loading Data
 
-Auto <- read.table("Auto.data")
-fix(Auto)
+# Auto <- read.table("Auto.data")
+# fix(Auto)
+# 
+# Auto <- read.table("Auto.data", header = T, na.strings = "?")
+# fix(Auto)
+#setwd("\c\Users\zhen-\Code\R_code\R_Omics_DS\DD_ISLR_R_code\ISLR-master")
 
-Auto <- read.table("Auto.data", header = T, na.strings = "?")
-fix(Auto)
+setwd("~/Code/R_code/R_Omics_DS/DD_ISLR_R_code/ISLR-master")
 
+getwd()
 Auto <- read.csv("Auto.csv", header = T, na.strings = "?")
-fix(Auto)
+#fix(Auto)
 dim(Auto)
 Auto[1:4, ]
 
@@ -129,7 +133,13 @@ names(Auto)
 plot(cylinders, mpg)
 
 plot(Auto$cylinders, Auto$mpg)
+#install.packages("ISLR") # Run this only if you haven't installed it yet
+# library(ISLR)
+# Auto
+# Auto <- as.data.frame(Auto)
 attach(Auto)
+load(Auto)
+
 plot(cylinders, mpg)
 
 cylinders <- as.factor(cylinders)
@@ -153,3 +163,4 @@ identify(horsepower, mpg, name)
 summary(Auto)
 
 summary(mpg)
+
